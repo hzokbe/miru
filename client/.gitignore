@@ -1,0 +1,5 @@
+.idea/
+.nuxt/
+.output/
+coverage/
+node_modules/

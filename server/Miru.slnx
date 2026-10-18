@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Miru.csproj"/>
+  <Project Path="Miru.Tests/Miru.Tests.csproj"/>
+</Solution>

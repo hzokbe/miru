@@ -1,0 +1,63 @@
+#!/bin/sh
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+if [ -t 1 ]; then
+  RED="$(printf '\033[31m')"
+  
+  GREEN="$(printf '\033[32m')"
+  
+  YELLOW="$(printf '\033[33m')"
+  
+  BOLD="$(printf '\033[1m')"
+  
+  DIM="$(printf '\033[2m')"
+  
+  RESET="$(printf '\033[0m')"
+else
+  RED=""; GREEN=""; YELLOW=""; BOLD=""; DIM=""; RESET=""
+fi
+
+TOTAL_START=$(date +%s)
+
+run_step() {
+  LABEL="$1"
+  
+  DIR="$2"
+  
+  shift 2
+
+  printf "%s⏳ %s...%s" "$YELLOW" "$LABEL" "$RESET"
+  
+  START=$(date +%s)
+
+  if OUTPUT=$(cd "$DIR" && "$@" 2>&1); then
+    ELAPSED=$(( $(date +%s) - START ))
+    
+    printf "\r\033[K%s✅ %s%s %s(%ss)%s\n" "$GREEN" "$LABEL" "$RESET" "$DIM" "$ELAPSED" "$RESET"
+  else
+    ELAPSED=$(( $(date +%s) - START ))
+    
+    printf "\r\033[K%s❌ %s failed%s %s(%ss)%s\n\n" "$RED" "$LABEL" "$RESET" "$DIM" "$ELAPSED" "$RESET"
+    
+    printf "%s\n\n" "$OUTPUT"
+    
+    printf "%s🚫 Commit aborted. Fix the issues above and try again.%s\n" "$RED$BOLD" "$RESET"
+    
+    exit 1
+  fi
+}
+
+printf "%s🔍 Pre-commit checks%s\n\n" "$BOLD" "$RESET"
+
+run_step "> dotnet format Miru.slnx --verify-no-changes" "$ROOT/server" dotnet format Miru.slnx --verify-no-changes
+
+run_step "> npm run format:check" "$ROOT/client" npm run format:check
+
+run_step "> npm run lint" "$ROOT/client" npm run lint
+
+run_step "> npm run test:all" "$ROOT/client" npm run test:all
+
+TOTAL=$(( $(date +%s) - TOTAL_START ))
+
+printf "\n%s✨ All checks passed in %ss. Committing!%s\n" "$GREEN$BOLD" "$TOTAL" "$RESET"
