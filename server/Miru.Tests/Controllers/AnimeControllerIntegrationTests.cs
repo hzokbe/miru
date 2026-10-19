@@ -4,7 +4,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Miru.Data.Seeding;
 using Miru.DTO;
+using Miru.Models;
 using Miru.Tests.Fixtures;
+using Moq;
 using NSubstitute;
 
 namespace Miru.Tests.Controllers;
@@ -115,5 +117,85 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
         Assert.Equal(anime.AiredTo, item.AiredTo);
 
         Assert.Equal(anime.Score, item.Score);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNotFound()
+    {
+        _factory.AnimeRepository.GetByIdAsync(It.IsAny<Guid>()).Returns((Anime?)null);
+
+        var response = await _client.GetAsync("/animes/" + Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsAnime_ReturnsOkWithAnime()
+    {
+        var anime = AnimeSeedData.Create()[0];
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var response = await _client.GetAsync("/animes/" + anime.Id);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<AnimeResponse>(JsonOptions);
+
+        Assert.NotNull(body);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsProblemPlusJsonContentType()
+    {
+        _factory.AnimeRepository.GetByIdAsync(It.IsAny<Guid>()).Returns((Anime?)null);
+
+        var response = await _client.GetAsync("/animes/" + Guid.NewGuid());
+
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsRepositoryOnce()
+    {
+        var id = Guid.NewGuid();
+
+        _factory.AnimeRepository.GetByIdAsync(id).Returns((Anime?)null);
+
+        await _client.GetAsync("/animes/" + id);
+
+        await _factory.AnimeRepository.Received(1).GetByIdAsync(id);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsAllFieldsFromAnime()
+    {
+        var anime = AnimeSeedData.Create()[0];
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>("/animes/" + anime.Id, JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(anime.Id, body.Id);
+
+        Assert.Equal(anime.Title, body.Title);
+
+        Assert.Equal(anime.JapaneseTitle, body.JapaneseTitle);
+
+        Assert.Equal(anime.Synopsis, body.Synopsis);
+
+        Assert.Equal(anime.Type, body.Type);
+
+        Assert.Equal(anime.Episodes, body.Episodes);
+
+        Assert.Equal(anime.Status, body.Status);
+
+        Assert.Equal(anime.AiredFrom, body.AiredFrom);
+
+        Assert.Equal(anime.AiredTo, body.AiredTo);
+
+        Assert.Equal(anime.Score, body.Score);
     }
 }

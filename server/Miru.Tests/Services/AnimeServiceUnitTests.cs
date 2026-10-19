@@ -85,4 +85,88 @@ public class AnimeServiceUnitTests
 
         _repository.Verify(r => r.GetAllAsync(), Times.Once);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNull()
+    {
+        _repository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Anime?)null);
+
+        var result = await _service.GetByIdAsync(Guid.NewGuid());
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsAnime_ReturnsAnime()
+    {
+        var id = Guid.NewGuid();
+
+        var anime = new Anime { Id = id };
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(anime);
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(anime.Id, result.Id);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsAllFieldsCorrectly()
+    {
+        var id = Guid.NewGuid();
+
+        var anime = new Anime
+        {
+            Id = Guid.NewGuid(),
+            Title = "Kaguya-sama wa Kokurasetai?: Tensai-tachi no Renai Zunousen",
+            JapaneseTitle = "かぐや様は告らせたい？ ～天才たちの恋愛頭脳戦～",
+            Synopsis = "As the council's term nears its end, a heated election and a birthday complicate the game.",
+            Type = AnimeType.Tv,
+            Episodes = 12,
+            Status = AnimeStatus.FinishedAiring,
+            AiredFrom = new DateOnly(2020, 4, 11),
+            AiredTo = new DateOnly(2020, 6, 27),
+            Score = 8.61m
+        };
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(anime);
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(anime.Id, result.Id);
+
+        Assert.Equal(anime.Title, result.Title);
+
+        Assert.Equal(anime.JapaneseTitle, result.JapaneseTitle);
+
+        Assert.Equal(anime.Synopsis, result.Synopsis);
+
+        Assert.Equal(anime.Type, result.Type);
+
+        Assert.Equal(anime.Episodes, result.Episodes);
+
+        Assert.Equal(anime.Status, result.Status);
+
+        Assert.Equal(anime.AiredFrom, result.AiredFrom);
+
+        Assert.Equal(anime.AiredTo, result.AiredTo);
+
+        Assert.Equal(anime.Score, result.Score);
+
+        Assert.Equal(anime.ImageSource, result.ImageSource);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsRepositoryOnce()
+    {
+        _repository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Anime?)null);
+
+        await _service.GetByIdAsync(Guid.NewGuid());
+
+        _repository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+    }
 }

@@ -74,4 +74,56 @@ public class AnimeControllerUnitTests
 
         _service.Verify(s => s.GetAllAsync(), Times.Once);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenServiceReturnsNull_ReturnsNotFound()
+    {
+        _service.Setup(s => s.GetByIdAsync(Guid.NewGuid())).ReturnsAsync((AnimeResponse?)null);
+
+        var result = await _controller.GetByIdAsync(Guid.NewGuid());
+
+        var ok = Assert.IsType<NotFoundResult>(result);
+
+        Assert.Equal(404, ok.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenServiceReturnsAnime_ReturnsOkWithAnime()
+    {
+        var id = Guid.NewGuid();
+
+        var anime = new AnimeResponse(
+            id,
+            "Kaguya-sama wa Kokurasetai?: Tensai-tachi no Renai Zunousen",
+            "かぐや様は告らせたい？ ～天才たちの恋愛頭脳戦～",
+            "As the council's term nears its end, a heated election and a birthday complicate the game.",
+            AnimeType.Tv,
+            12,
+            AnimeStatus.FinishedAiring,
+            new DateOnly(2020, 4, 11),
+            new DateOnly(2020, 6, 27),
+            8.61m,
+            "/images/anime/" + id
+        );
+
+        _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(anime);
+
+        var result = await _controller.GetByIdAsync(id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        Assert.Equal(200, ok.StatusCode);
+
+        Assert.Same(anime, ok.Value);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsServiceOnce()
+    {
+        _service.Setup(s => s.GetByIdAsync(Guid.NewGuid())).ReturnsAsync((AnimeResponse?)null);
+
+        await _controller.GetAllAsync();
+
+        _service.Verify(s => s.GetAllAsync(), Times.Once);
+    }
 }

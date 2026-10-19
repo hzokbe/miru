@@ -1,22 +1,27 @@
 <script lang="ts" setup>
-defineProps<{
-  alt: string;
-
-  src: string | null;
-}>();
+withDefaults(
+  defineProps<{
+    alt: string;
+    src: string | null;
+    size?: 'sm' | 'md';
+  }>(),
+  {
+    size: 'sm',
+  },
+);
 </script>
 
 <template>
   <img
     v-if="src"
     :alt="alt"
+    :class="`${size == 'sm' ? 'w-32' : 'w-48'} aspect-2/3 rounded-sm ring ring-default`"
     :src="src"
-    class="w-32 aspect-2/3 rounded-sm ring ring-default"
     loading="lazy"
   />
   <div
     v-else
-    class="w-32 aspect-2/3 rounded-sm ring ring-default flex items-center justify-center"
+    :class="`${size == 'sm' ? 'w-32' : 'w-48'} aspect-2/3 rounded-sm ring ring-default flex items-center justify-center`"
   >
     <UIcon name="i-lucide-image-off" />
   </div>

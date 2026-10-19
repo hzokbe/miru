@@ -11,6 +11,13 @@ public class AnimeService(IAnimeRepository repository) : IAnimeService
         return [.. (await repository.GetAllAsync()).Select(ToResponse)];
     }
 
+    public async Task<AnimeResponse?> GetByIdAsync(Guid id)
+    {
+        var anime = await repository.GetByIdAsync(id);
+
+        return anime != null ? ToResponse(anime) : null;
+    }
+
     private static AnimeResponse ToResponse(Anime anime)
     {
         return new AnimeResponse(
