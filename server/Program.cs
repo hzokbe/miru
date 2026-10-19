@@ -25,9 +25,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     {
         var animes = context.Set<Anime>();
 
-        if (animes.Any()) return;
+        var mangas = context.Set<Manga>();
 
-        animes.AddRange(AnimeSeedData.Create());
+        if (!animes.Any()) animes.AddRange(AnimeSeedData.Create());
+
+        if (!mangas.Any()) mangas.AddRange(MangaSeedData.Create());
 
         context.SaveChanges();
     });
@@ -36,12 +38,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     {
         var animes = context.Set<Anime>();
 
-        if (!await animes.AnyAsync(cancellationToken))
-        {
-            animes.AddRange(AnimeSeedData.Create());
+        var mangas = context.Set<Manga>();
 
-            await context.SaveChangesAsync(cancellationToken);
-        }
+        if (!await animes.AnyAsync(cancellationToken)) animes.AddRange(AnimeSeedData.Create());
+
+        if (!await mangas.AnyAsync(cancellationToken)) mangas.AddRange(MangaSeedData.Create());
+
+        await context.SaveChangesAsync(cancellationToken);
     });
 });
 
@@ -57,6 +60,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IAnimeRepository, AnimeRepository>();
 
 builder.Services.AddScoped<IAnimeService, AnimeService>();
+
+builder.Services.AddScoped<IMangaRepository, MangaRepository>();
+
+builder.Services.AddScoped<IMangaService, MangaService>();
 
 var app = builder.Build();
 

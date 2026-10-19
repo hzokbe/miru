@@ -2,50 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Miru.Data;
 using Miru.Data.Seeding;
 using Miru.DTO;
-using Miru.Repositories;
+using Miru.Tests.Fixtures;
 using NSubstitute;
 
 namespace Miru.Tests.Controllers;
-
-public class MiruFactory : WebApplicationFactory<Program>
-{
-    public IAnimeRepository Repository { get; } = Substitute.For<IAnimeRepository>();
-
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.UseEnvironment("Testing");
-
-        builder.ConfigureServices(services =>
-        {
-            services.RemoveAll<DbContextOptions<AppDbContext>>();
-
-            services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
-
-            services.AddDbContext<AppDbContext>(o => o.UseInMemoryDatabase("test"));
-
-            services.RemoveAll<IAnimeRepository>();
-
-            services.AddSingleton(Repository);
-        });
-    }
-
-    public HttpClient CreateSecureClient()
-    {
-        return CreateClient(new WebApplicationFactoryClientOptions
-        {
-            BaseAddress = new Uri("https://localhost")
-        });
-    }
-}
 
 public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
 {
@@ -62,7 +24,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     {
         _factory = factory;
 
-        _factory.Repository.ClearReceivedCalls();
+        _factory.AnimeRepository.ClearReceivedCalls();
 
         _client = factory.CreateSecureClient();
     }
@@ -72,7 +34,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     {
         var animes = AnimeSeedData.Create();
 
-        _factory.Repository.GetAllAsync().Returns(animes);
+        _factory.AnimeRepository.GetAllAsync().Returns(animes);
 
         var response = await _client.GetAsync("/animes");
 
@@ -90,7 +52,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     [Fact]
     public async Task GetAllAsync_WhenRepositoryReturnsEmpty_ReturnsOkWithEmptyList()
     {
-        _factory.Repository.GetAllAsync().Returns([]);
+        _factory.AnimeRepository.GetAllAsync().Returns([]);
 
         var response = await _client.GetAsync("/animes");
 
@@ -106,7 +68,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     [Fact]
     public async Task GetAllAsync_ReturnsJsonContentType()
     {
-        _factory.Repository.GetAllAsync().Returns([]);
+        _factory.AnimeRepository.GetAllAsync().Returns([]);
 
         var response = await _client.GetAsync("/animes");
 
@@ -116,11 +78,11 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     [Fact]
     public async Task GetAllAsync_CallsRepositoryOnce()
     {
-        _factory.Repository.GetAllAsync().Returns([]);
+        _factory.AnimeRepository.GetAllAsync().Returns([]);
 
         await _client.GetAsync("/animes");
 
-        await _factory.Repository.Received(1).GetAllAsync();
+        await _factory.AnimeRepository.Received(1).GetAllAsync();
     }
 
     [Fact]
@@ -128,7 +90,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     {
         var anime = AnimeSeedData.Create()[0];
 
-        _factory.Repository.GetAllAsync().Returns([anime]);
+        _factory.AnimeRepository.GetAllAsync().Returns([anime]);
 
         var body = await _client.GetFromJsonAsync<List<AnimeResponse>>("/animes", JsonOptions);
 

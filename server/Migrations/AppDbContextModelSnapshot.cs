@@ -81,6 +81,64 @@ namespace Miru.Migrations
 
                     b.ToTable("Animes");
                 });
+
+            modelBuilder.Entity("Miru.Models.Manga", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int?>("Chapters")
+                        .HasColumnType("integer")
+                        .HasColumnName("chapters");
+
+                    b.Property<string>("ImageSource")
+                        .HasColumnType("text")
+                        .HasColumnName("image_source");
+
+                    b.Property<string>("JapaneseTitle")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("japanese_title");
+
+                    b.Property<DateOnly?>("PublishedFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("published_from");
+
+                    b.Property<DateOnly?>("PublishedTo")
+                        .HasColumnType("date")
+                        .HasColumnName("published_to");
+
+                    b.Property<decimal?>("Score")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("numeric(4,2)")
+                        .HasColumnName("score");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Synopsis")
+                        .HasColumnType("text")
+                        .HasColumnName("synopsis");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("title");
+
+                    b.Property<int?>("Volumes")
+                        .HasColumnType("integer")
+                        .HasColumnName("volumes");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Mangas");
+                });
 #pragma warning restore 612, 618
         }
     }
