@@ -17,6 +17,20 @@ public class AnimeServiceUnitTests
         _service = new AnimeService(_repository.Object);
     }
 
+    private static Genre CreateGenre(string name, string? description = null)
+    {
+        return new Genre { Id = Guid.NewGuid(), Name = name, Description = description };
+    }
+
+    private static Anime CreateAnimeWithGenres(Guid id, params Genre[] genres)
+    {
+        return new Anime
+        {
+            Id = id,
+            AnimeGenres = [.. genres.Select(g => new AnimeGenre { AnimeId = id, GenreId = g.Id, Genre = g })]
+        };
+    }
+
     [Fact]
     public async Task GetAllAsync_WhenRepositoryReturnsNoAnimes_ReturnsEmptyList()
     {
@@ -84,6 +98,66 @@ public class AnimeServiceUnitTests
         await _service.GetAllAsync();
 
         _repository.Verify(r => r.GetAllAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenAnimeHasNoGenres_ReturnsEmptyGenres()
+    {
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([new Anime { Id = Guid.NewGuid() }]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Empty(Assert.Single(result).Genres);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsGenresCorrectly()
+    {
+        var comedy = CreateGenre("Comedy", "Humor-focused stories.");
+
+        var romance = CreateGenre("Romance", "Stories centered on love.");
+
+        var anime = CreateAnimeWithGenres(Guid.NewGuid(), comedy, romance);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([anime]);
+
+        var result = await _service.GetAllAsync();
+
+        var genres = Assert.Single(result).Genres;
+
+        Assert.Equal(2, genres.Count);
+
+        Assert.Equal(comedy.Id, genres[0].Id);
+
+        Assert.Equal(comedy.Name, genres[0].Name);
+
+        Assert.Equal(comedy.Description, genres[0].Description);
+
+        Assert.Equal(romance.Id, genres[1].Id);
+
+        Assert.Equal(romance.Name, genres[1].Name);
+
+        Assert.Equal(romance.Description, genres[1].Description);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsGenresForEachAnime()
+    {
+        var comedy = CreateGenre("Comedy");
+
+        var drama = CreateGenre("Drama");
+
+        var first = CreateAnimeWithGenres(Guid.NewGuid(), comedy);
+
+        var second = CreateAnimeWithGenres(Guid.NewGuid(), drama);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([first, second]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Equal(["Comedy"], result[0].Genres.Select(g => g.Name));
+
+        Assert.Equal(["Drama"], result[1].Genres.Select(g => g.Name));
     }
 
     [Fact]
@@ -168,5 +242,49 @@ public class AnimeServiceUnitTests
         await _service.GetByIdAsync(Guid.NewGuid());
 
         _repository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoGenres_ReturnsEmptyGenres()
+    {
+        var id = Guid.NewGuid();
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(new Anime { Id = id });
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.Genres);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsGenresCorrectly()
+    {
+        var id = Guid.NewGuid();
+
+        var action = CreateGenre("Action", "Fast-paced stories.");
+
+        var fantasy = CreateGenre("Fantasy", "Worlds with magic.");
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(CreateAnimeWithGenres(id, action, fantasy));
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(2, result.Genres.Count);
+
+        Assert.Equal(action.Id, result.Genres[0].Id);
+
+        Assert.Equal(action.Name, result.Genres[0].Name);
+
+        Assert.Equal(action.Description, result.Genres[0].Description);
+
+        Assert.Equal(fantasy.Id, result.Genres[1].Id);
+
+        Assert.Equal(fantasy.Name, result.Genres[1].Name);
+
+        Assert.Equal(fantasy.Description, result.Genres[1].Description);
     }
 }

@@ -26,6 +26,26 @@ const animesFixture = [
     status: 'FinishedAiring',
     score: 9.07,
     imageSource: '02e9c6be-06e0-479c-9f39-f02c42d02140.jpg',
+    genres: [
+      {
+        id: '4cd47f33-b241-4238-ae56-9100b0385231',
+        name: 'Sci-Fi',
+        description:
+          'Stories built on speculative science and technology, such as time travel, AI and the future.',
+      },
+      {
+        id: '9cb2ae6c-2989-41e9-942b-898d6816cb9e',
+        name: 'Drama',
+        description:
+          'Emotionally driven stories centered on realistic conflicts and character development.',
+      },
+      {
+        id: '61e6c9a7-9876-4335-bc91-b0abbf331e00',
+        name: 'Suspense',
+        description:
+          'Tense stories that keep the audience anxious about what will happen next.',
+      },
+    ],
   },
   {
     id: '125e0fcc-0962-4b0b-be9c-95b09ad623a3',
@@ -36,6 +56,26 @@ const animesFixture = [
     status: 'FinishedAiring',
     score: 9.24,
     imageSource: '125e0fcc-0962-4b0b-be9c-95b09ad623a3.jpg',
+    genres: [
+      {
+        id: '9cb2ae6c-2989-41e9-942b-898d6816cb9e',
+        name: 'Drama',
+        description:
+          'Emotionally driven stories centered on realistic conflicts and character development.',
+      },
+      {
+        id: 'd851ec0a-5ee7-4beb-978b-34c547bb67ec',
+        name: 'Adventure',
+        description:
+          'Journeys and quests through unfamiliar places, full of exploration and risk.',
+      },
+      {
+        id: '45373347-01a1-4bfb-bb07-c43450ce1dbe',
+        name: 'Fantasy',
+        description:
+          'Stories set in worlds with magic, mythical creatures and supernatural elements.',
+      },
+    ],
   },
 ] as unknown as AnimeResponse[];
 
@@ -90,6 +130,26 @@ describe('AnimesPage', () => {
         status: 'FinishedAiring',
         score: 9.07,
         imageSource: '02e9c6be-06e0-479c-9f39-f02c42d02140.jpg',
+        genres: [
+          {
+            id: '4cd47f33-b241-4238-ae56-9100b0385231',
+            name: 'Sci-Fi',
+            description:
+              'Stories built on speculative science and technology, such as time travel, AI and the future.',
+          },
+          {
+            id: '9cb2ae6c-2989-41e9-942b-898d6816cb9e',
+            name: 'Drama',
+            description:
+              'Emotionally driven stories centered on realistic conflicts and character development.',
+          },
+          {
+            id: '61e6c9a7-9876-4335-bc91-b0abbf331e00',
+            name: 'Suspense',
+            description:
+              'Tense stories that keep the audience anxious about what will happen next.',
+          },
+        ],
       });
     });
 

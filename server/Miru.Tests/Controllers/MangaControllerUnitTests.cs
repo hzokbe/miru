@@ -74,4 +74,56 @@ public class MangaControllerUnitTests
 
         _service.Verify(s => s.GetAllAsync(), Times.Once);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenServiceReturnsNull_ReturnsNotFound()
+    {
+        _service.Setup(s => s.GetByIdAsync(Guid.NewGuid())).ReturnsAsync((MangaResponse?)null);
+
+        var result = await _controller.GetByIdAsync(Guid.NewGuid());
+
+        var ok = Assert.IsType<NotFoundResult>(result);
+
+        Assert.Equal(404, ok.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenServiceReturnsManga_ReturnsOkWithManga()
+    {
+        var id = Guid.NewGuid();
+
+        var manga = new MangaResponse(
+            id,
+            "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+            "かぐや様は告らせたい～天才たちの恋愛頭脳戦～",
+            "Student council president Miyuki Shirogane and vice president Kaguya Shinomiya have feelings for each other, but neither will confess first, so they wage a battle of wits to make the other do it.",
+            281,
+            28,
+            MangaStatus.Finished,
+            new DateOnly(2015, 5, 19),
+            new DateOnly(2022, 11, 2),
+            8.88m,
+            "/images/manga/" + id
+        );
+
+        _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(manga);
+
+        var result = await _controller.GetByIdAsync(id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        Assert.Equal(200, ok.StatusCode);
+
+        Assert.Same(manga, ok.Value);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsServiceOnce()
+    {
+        _service.Setup(s => s.GetByIdAsync(Guid.NewGuid())).ReturnsAsync((MangaResponse?)null);
+
+        await _controller.GetAllAsync();
+
+        _service.Verify(s => s.GetAllAsync(), Times.Once);
+    }
 }

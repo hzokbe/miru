@@ -34,6 +34,7 @@ const showLoading = import.meta.client ? useDelay(isLoading) : ref(false);
         :id="anime.id"
         :key="anime.id"
         :episodes="anime.episodes"
+        :genres="anime.genres"
         :image-source="anime.imageSource"
         :score="anime.score"
         :status="anime.status"

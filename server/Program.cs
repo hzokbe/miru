@@ -27,9 +27,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
         var mangas = context.Set<Manga>();
 
+        var genres = context.Set<Genre>();
+
+        var animeGenres = context.Set<AnimeGenre>();
+
         if (!animes.Any()) animes.AddRange(AnimeSeedData.Create());
 
         if (!mangas.Any()) mangas.AddRange(MangaSeedData.Create());
+
+        if (!genres.Any()) genres.AddRange(GenreSeedData.Create());
+
+        context.SaveChanges();
+
+        if (!animeGenres.Any()) animeGenres.AddRange(AnimeGenreSeedData.Create([.. animes], [.. genres]));
 
         context.SaveChanges();
     });
@@ -40,9 +50,25 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
         var mangas = context.Set<Manga>();
 
+        var genres = context.Set<Genre>();
+
+        var animeGenres = context.Set<AnimeGenre>();
+
         if (!await animes.AnyAsync(cancellationToken)) animes.AddRange(AnimeSeedData.Create());
 
         if (!await mangas.AnyAsync(cancellationToken)) mangas.AddRange(MangaSeedData.Create());
+
+        if (!await genres.AnyAsync(cancellationToken)) genres.AddRange(GenreSeedData.Create());
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        if (!await animeGenres.AnyAsync(cancellationToken))
+            animeGenres.AddRange(
+                AnimeGenreSeedData.Create(
+                    await animes.ToListAsync(cancellationToken),
+                    await genres.ToListAsync(cancellationToken)
+                )
+            );
 
         await context.SaveChangesAsync(cancellationToken);
     });

@@ -14,6 +14,14 @@ const baseProps = {
   status: 'FinishedAiring' as AnimeStatus,
   score: 9.07,
   imageSource: '02e9c6be-06e0-479c-9f39-f02c42d02140.jpg',
+  genres: [
+    {
+      id: '4cd47f33-b241-4238-ae56-9100b0385231',
+      name: 'Sci-Fi',
+      description:
+        'Stories built on speculative science and technology, such as time travel, AI and the future.',
+    },
+  ],
 };
 
 describe('AnimeCard', () => {
@@ -105,5 +113,49 @@ describe('AnimeCard', () => {
     });
 
     expect(wrapper.findComponent(AppImage).props('src')).toBeNull();
+  });
+
+  it('renders all genres when there are at most two', async () => {
+    const wrapper = await mountSuspended(AnimeCard, { props: baseProps });
+
+    expect(wrapper.findAll('[data-testid="anime-genre"]')).toHaveLength(1);
+  });
+
+  it('limits visible genres to two and displays the remaining count when overflowing', async () => {
+    const wrapper = await mountSuspended(AnimeCard, {
+      props: {
+        ...baseProps,
+        genres: [
+          {
+            id: '4cd47f33-b241-4238-ae56-9100b0385231',
+            name: 'Sci-Fi',
+            description:
+              'Stories built on speculative science and technology, such as time travel, AI and the future.',
+          },
+          {
+            id: '9cb2ae6c-2989-41e9-942b-898d6816cb9e',
+            name: 'Drama',
+            description:
+              'Emotionally driven stories centered on realistic conflicts and character development.',
+          },
+          {
+            id: '61e6c9a7-9876-4335-bc91-b0abbf331e00',
+            name: 'Suspense',
+            description:
+              'Tense stories that keep the audience anxious about what will happen next.',
+          },
+        ],
+      },
+    });
+
+    expect(wrapper.findAll('[data-testid="anime-genre"]')).toHaveLength(2);
+
+    expect(wrapper.find('[data-testid="anime-genres-overflow"]').exists()).toBe(
+      true,
+    );
+
+    expect(
+      wrapper.get('[data-testid="anime-genres-overflow"]').text(),
+    ).toContain('+ 1');
   });
 });

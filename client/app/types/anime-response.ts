@@ -1,3 +1,5 @@
+import type { GenreResponse } from '~/types/genre-response.ts';
+
 export type AnimeType =
   | 'Tv'
   | 'Ova'
@@ -33,4 +35,6 @@ export interface AnimeResponse {
   score: number | null;
 
   imageSource: string | null;
+
+  genres: GenreResponse[];
 }

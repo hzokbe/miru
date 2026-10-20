@@ -31,6 +31,22 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
         _client = factory.CreateSecureClient();
     }
 
+    private static Anime CreateAnimeWithGenres()
+    {
+        var anime = AnimeSeedData.Create()[0];
+
+        var genres = GenreSeedData.Create();
+
+        var animeGenres = AnimeGenreSeedData.Create([anime], genres);
+
+        foreach (var animeGenre in animeGenres)
+            animeGenre.Genre = genres.First(g => g.Id == animeGenre.GenreId);
+
+        anime.AnimeGenres = animeGenres;
+
+        return anime;
+    }
+
     [Fact]
     public async Task GetAllAsync_WhenRepositoryReturnsAnimes_ReturnsOkWithAnimes()
     {
@@ -120,6 +136,36 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     }
 
     [Fact]
+    public async Task GetAllAsync_MapsGenresFromAnime()
+    {
+        var anime = CreateAnimeWithGenres();
+
+        _factory.AnimeRepository.GetAllAsync().Returns([anime]);
+
+        var body = await _client.GetFromJsonAsync<List<AnimeResponse>>("/animes", JsonOptions);
+
+        var item = Assert.Single(body!);
+
+        Assert.Equal(anime.AnimeGenres.Select(ag => ag.Genre.Id), item.Genres.Select(g => g.Id));
+
+        Assert.Equal(anime.AnimeGenres.Select(ag => ag.Genre.Name), item.Genres.Select(g => g.Name));
+
+        Assert.Equal(anime.AnimeGenres.Select(ag => ag.Genre.Description), item.Genres.Select(g => g.Description));
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenAnimeHasNoGenres_ReturnsEmptyGenres()
+    {
+        var anime = AnimeSeedData.Create()[0];
+
+        _factory.AnimeRepository.GetAllAsync().Returns([anime]);
+
+        var body = await _client.GetFromJsonAsync<List<AnimeResponse>>("/animes", JsonOptions);
+
+        Assert.Empty(Assert.Single(body!).Genres);
+    }
+
+    [Fact]
     public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNotFound()
     {
         _factory.AnimeRepository.GetByIdAsync(It.IsAny<Guid>()).Returns((Anime?)null);
@@ -197,5 +243,37 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
         Assert.Equal(anime.AiredTo, body.AiredTo);
 
         Assert.Equal(anime.Score, body.Score);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsGenresFromAnime()
+    {
+        var anime = CreateAnimeWithGenres();
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>("/animes/" + anime.Id, JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(anime.AnimeGenres.Select(ag => ag.Genre.Id), body.Genres.Select(g => g.Id));
+
+        Assert.Equal(anime.AnimeGenres.Select(ag => ag.Genre.Name), body.Genres.Select(g => g.Name));
+
+        Assert.Equal(anime.AnimeGenres.Select(ag => ag.Genre.Description), body.Genres.Select(g => g.Description));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoGenres_ReturnsEmptyGenres()
+    {
+        var anime = AnimeSeedData.Create()[0];
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>("/animes/" + anime.Id, JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Empty(body.Genres);
     }
 }

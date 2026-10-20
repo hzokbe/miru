@@ -8,11 +8,13 @@ public class AnimeRepository(AppDbContext context) : IAnimeRepository
 {
     public async Task<List<Anime>> GetAllAsync()
     {
-        return await context.Animes.AsNoTracking().OrderByDescending(a => a.Score).ToListAsync();
+        return await context.Animes.AsNoTracking().Include(a => a.AnimeGenres).ThenInclude(ag => ag.Genre)
+            .OrderByDescending(a => a.Score).ToListAsync();
     }
 
     public async Task<Anime?> GetByIdAsync(Guid id)
     {
-        return await context.Animes.FirstOrDefaultAsync(a => a.Id == id);
+        return await context.Animes.Include(a => a.AnimeGenres).ThenInclude(ag => ag.Genre)
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 }

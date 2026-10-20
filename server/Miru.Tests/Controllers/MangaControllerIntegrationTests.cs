@@ -4,7 +4,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Miru.Data.Seeding;
 using Miru.DTO;
+using Miru.Models;
 using Miru.Tests.Fixtures;
+using Moq;
 using NSubstitute;
 
 namespace Miru.Tests.Controllers;
@@ -115,5 +117,85 @@ public class MangaControllerIntegrationTests : IClassFixture<MiruFactory>
         Assert.Equal(manga.PublishedTo, item.PublishedTo);
 
         Assert.Equal(manga.Score, item.Score);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNotFound()
+    {
+        _factory.MangaRepository.GetByIdAsync(It.IsAny<Guid>()).Returns((Manga?)null);
+
+        var response = await _client.GetAsync("/mangas/" + Guid.NewGuid());
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsManga_ReturnsOkWithManga()
+    {
+        var manga = MangaSeedData.Create()[0];
+
+        _factory.MangaRepository.GetByIdAsync(manga.Id).Returns(manga);
+
+        var response = await _client.GetAsync("/mangas/" + manga.Id);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<MangaResponse>(JsonOptions);
+
+        Assert.NotNull(body);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsProblemPlusJsonContentType()
+    {
+        _factory.MangaRepository.GetByIdAsync(It.IsAny<Guid>()).Returns((Manga?)null);
+
+        var response = await _client.GetAsync("/mangas/" + Guid.NewGuid());
+
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsRepositoryOnce()
+    {
+        var id = Guid.NewGuid();
+
+        _factory.MangaRepository.GetByIdAsync(id).Returns((Manga?)null);
+
+        await _client.GetAsync("/mangas/" + id);
+
+        await _factory.MangaRepository.Received(1).GetByIdAsync(id);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsAllFieldsFromManga()
+    {
+        var manga = MangaSeedData.Create()[0];
+
+        _factory.MangaRepository.GetByIdAsync(manga.Id).Returns(manga);
+
+        var body = await _client.GetFromJsonAsync<MangaResponse>("/mangas/" + manga.Id, JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(manga.Id, body.Id);
+
+        Assert.Equal(manga.Title, body.Title);
+
+        Assert.Equal(manga.JapaneseTitle, body.JapaneseTitle);
+
+        Assert.Equal(manga.Synopsis, body.Synopsis);
+
+        Assert.Equal(manga.Chapters, body.Chapters);
+
+        Assert.Equal(manga.Volumes, body.Volumes);
+
+        Assert.Equal(manga.Status, body.Status);
+
+        Assert.Equal(manga.PublishedFrom, body.PublishedFrom);
+
+        Assert.Equal(manga.PublishedTo, body.PublishedTo);
+
+        Assert.Equal(manga.Score, body.Score);
     }
 }

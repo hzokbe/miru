@@ -25,4 +25,6 @@ public class Anime
     public decimal? Score { get; set; }
 
     public string? ImageSource { get; set; } = string.Empty;
+
+    public ICollection<AnimeGenre> AnimeGenres { get; set; } = new List<AnimeGenre>();
 }

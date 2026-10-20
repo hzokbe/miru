@@ -27,6 +27,26 @@ const animeFixture = {
   airedTo: '2011-09-14',
   score: 9.07,
   imageSource: '02e9c6be-06e0-479c-9f39-f02c42d02140.jpg',
+  genres: [
+    {
+      id: '4cd47f33-b241-4238-ae56-9100b0385231',
+      name: 'Sci-Fi',
+      description:
+        'Stories built on speculative science and technology, such as time travel, AI and the future.',
+    },
+    {
+      id: '9cb2ae6c-2989-41e9-942b-898d6816cb9e',
+      name: 'Drama',
+      description:
+        'Emotionally driven stories centered on realistic conflicts and character development.',
+    },
+    {
+      id: '61e6c9a7-9876-4335-bc91-b0abbf331e00',
+      name: 'Suspense',
+      description:
+        'Tense stories that keep the audience anxious about what will happen next.',
+    },
+  ],
 };
 
 const mountedWrappers: Array<{ unmount: () => void }> = [];
@@ -86,6 +106,12 @@ describe('AnimePage integration', () => {
     expect(wrapper.text()).toContain('Finished Airing');
 
     expect(wrapper.text()).toContain('Apr 06, 2011 - Sep 14, 2011');
+
+    expect(wrapper.text()).toContain('Drama');
+
+    expect(wrapper.text()).toContain('Sci-Fi');
+
+    expect(wrapper.text()).toContain('Suspense');
 
     expect(wrapper.findComponent(UProgress).exists()).toBe(false);
 

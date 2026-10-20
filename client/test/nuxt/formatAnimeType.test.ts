@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { formatAnimeType } from '~/utils/format-anime-type';
 import type { AnimeType } from '~/types/anime-response.ts';
+import { mockNuxtImport } from '@nuxt/test-utils/runtime';
+
+mockNuxtImport('useAPIHealth', () => () => ({ checkHealth: vi.fn() }));
 
 describe('formatAnimeType', () => {
   it.each([

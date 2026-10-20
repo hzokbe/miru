@@ -86,4 +86,89 @@ public class MangaServiceUnitTests
 
         _repository.Verify(r => r.GetAllAsync(), Times.Once);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNull()
+    {
+        _repository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Manga?)null);
+
+        var result = await _service.GetByIdAsync(Guid.NewGuid());
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsManga_ReturnsManga()
+    {
+        var id = Guid.NewGuid();
+
+        var manga = new Manga { Id = id };
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(manga);
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(manga.Id, result.Id);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsAllFieldsCorrectly()
+    {
+        var id = Guid.NewGuid();
+
+        var manga = new Manga
+        {
+            Id = Guid.NewGuid(),
+            Title = "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+            JapaneseTitle = "かぐや様は告らせたい～天才たちの恋愛頭脳戦～",
+            Synopsis =
+                "At an elite academy, the two top students of the student council are secretly attracted to each other. Too proud to confess, both scheme and bluff in elaborate mind games, each hoping the other will give in first.",
+            Chapters = 281,
+            Volumes = 28,
+            Status = MangaStatus.Finished,
+            PublishedFrom = new DateOnly(2015, 5, 19),
+            PublishedTo = new DateOnly(2022, 11, 2),
+            Score = 8.88m
+        };
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(manga);
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(manga.Id, result.Id);
+
+        Assert.Equal(manga.Title, result.Title);
+
+        Assert.Equal(manga.JapaneseTitle, result.JapaneseTitle);
+
+        Assert.Equal(manga.Synopsis, result.Synopsis);
+
+        Assert.Equal(manga.Chapters, result.Chapters);
+
+        Assert.Equal(manga.Volumes, result.Volumes);
+
+        Assert.Equal(manga.Status, result.Status);
+
+        Assert.Equal(manga.PublishedFrom, result.PublishedFrom);
+
+        Assert.Equal(manga.PublishedTo, result.PublishedTo);
+
+        Assert.Equal(manga.Score, result.Score);
+
+        Assert.Equal(manga.ImageSource, result.ImageSource);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsRepositoryOnce()
+    {
+        _repository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Manga?)null);
+
+        await _service.GetByIdAsync(Guid.NewGuid());
+
+        _repository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+    }
 }
