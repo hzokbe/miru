@@ -33,17 +33,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
         var mangaGenres = context.Set<MangaGenre>();
 
+        var characters = context.Set<Character>();
+
+        var animeCharacters = context.Set<AnimeCharacter>();
+
         if (!animes.Any()) animes.AddRange(AnimeSeedData.Create());
 
         if (!mangas.Any()) mangas.AddRange(MangaSeedData.Create());
 
         if (!genres.Any()) genres.AddRange(GenreSeedData.Create());
 
+        if (!characters.Any()) characters.AddRange(CharacterSeedData.Create());
+
         context.SaveChanges();
 
         if (!animeGenres.Any()) animeGenres.AddRange(AnimeGenreSeedData.Create([.. animes], [.. genres]));
 
         if (!mangaGenres.Any()) mangaGenres.AddRange(MangaGenreSeedData.Create([.. mangas], [.. genres]));
+
+        if (!animeCharacters.Any())
+            animeCharacters.AddRange(AnimeCharacterSeedData.Create([.. animes], [.. characters]));
 
         context.SaveChanges();
     });
@@ -60,11 +69,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
         var mangaGenres = context.Set<MangaGenre>();
 
+        var characters = context.Set<Character>();
+
+        var animeCharacters = context.Set<AnimeCharacter>();
+
         if (!await animes.AnyAsync(cancellationToken)) animes.AddRange(AnimeSeedData.Create());
 
         if (!await mangas.AnyAsync(cancellationToken)) mangas.AddRange(MangaSeedData.Create());
 
         if (!await genres.AnyAsync(cancellationToken)) genres.AddRange(GenreSeedData.Create());
+
+        if (!await characters.AnyAsync(cancellationToken)) characters.AddRange(CharacterSeedData.Create());
 
         await context.SaveChangesAsync(cancellationToken);
 
@@ -81,6 +96,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
                 MangaGenreSeedData.Create(
                     await mangas.ToListAsync(cancellationToken),
                     await genres.ToListAsync(cancellationToken)
+                )
+            );
+
+        if (!await animeCharacters.AnyAsync(cancellationToken))
+            animeCharacters.AddRange(
+                AnimeCharacterSeedData.Create(
+                    await animes.ToListAsync(cancellationToken),
+                    await characters.ToListAsync(cancellationToken)
                 )
             );
 

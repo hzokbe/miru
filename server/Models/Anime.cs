@@ -27,4 +27,6 @@ public class Anime
     public string? ImageSource { get; set; } = string.Empty;
 
     public ICollection<AnimeGenre> AnimeGenres { get; set; } = new List<AnimeGenre>();
+
+    public ICollection<AnimeCharacter> AnimeCharacters { get; set; } = new List<AnimeCharacter>();
 }

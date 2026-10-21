@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Miru.Data;
+using Miru.Enums;
 using Miru.Models;
 using Miru.Repositories;
 
@@ -38,11 +39,34 @@ public class AnimeRepositoryUnitTests
         return new Genre { Id = Guid.NewGuid(), Name = name };
     }
 
+    private static Character CreateCharacter(string name)
+    {
+        return new Character
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Gender = CharacterGender.Unknown,
+            Role = CharacterRole.Main
+        };
+    }
+
     private static Anime CreateAnimeWithGenres(string title, decimal? score, params Genre[] genres)
     {
         var anime = CreateAnime(title, score);
 
         anime.AnimeGenres = [.. genres.Select(g => new AnimeGenre { AnimeId = anime.Id, GenreId = g.Id, Genre = g })];
+
+        return anime;
+    }
+
+    private static Anime CreateAnimeWithCharacters(string title, decimal? score, params Character[] characters)
+    {
+        var anime = CreateAnime(title, score);
+
+        anime.AnimeCharacters =
+        [
+            .. characters.Select(c => new AnimeCharacter { AnimeId = anime.Id, CharacterId = c.Id, Character = c })
+        ];
 
         return anime;
     }
@@ -152,6 +176,70 @@ public class AnimeRepositoryUnitTests
     }
 
     [Fact]
+    public async Task GetAllAsync_LoadsCharacters()
+    {
+        var options = CreateOptions();
+
+        var kaguya = CreateCharacter("Kaguya");
+
+        var miyuki = CreateCharacter("Miyuki");
+
+        await SeedAsync(options, CreateAnimeWithCharacters("Kaguya-sama", 8.40m, kaguya, miyuki));
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new AnimeRepository(context);
+
+        var result = await repository.GetAllAsync();
+
+        var anime = Assert.Single(result);
+
+        Assert.Equivalent((string[])["Kaguya", "Miyuki"], anime.AnimeCharacters.Select(ac => ac.Character.Name));
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ReturnsEmptyCharacters_WhenAnimeHasNoCharacters()
+    {
+        var options = CreateOptions();
+
+        await SeedAsync(options, CreateAnime("Steins;Gate", 9.07m));
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new AnimeRepository(context);
+
+        var result = await repository.GetAllAsync();
+
+        Assert.Empty(Assert.Single(result).AnimeCharacters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_LoadsOnlyOwnCharactersForEachAnime()
+    {
+        var options = CreateOptions();
+
+        var frieren = CreateCharacter("Frieren");
+
+        var kaguya = CreateCharacter("Kaguya");
+
+        await SeedAsync(
+            options,
+            CreateAnimeWithCharacters("Sousou no Frieren", 9.24m, frieren),
+            CreateAnimeWithCharacters("Kaguya-sama", 8.40m, kaguya)
+        );
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new AnimeRepository(context);
+
+        var result = await repository.GetAllAsync();
+
+        Assert.Equal(["Frieren"], result[0].AnimeCharacters.Select(ac => ac.Character.Name));
+
+        Assert.Equal(["Kaguya"], result[1].AnimeCharacters.Select(ac => ac.Character.Name));
+    }
+
+    [Fact]
     public async Task GetByIdAsync_ReturnsNull()
     {
         await using var context = new AppDbContext(CreateOptions());
@@ -225,5 +313,49 @@ public class AnimeRepositoryUnitTests
         Assert.NotNull(result);
 
         Assert.Empty(result.AnimeGenres);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_LoadsCharacters()
+    {
+        var options = CreateOptions();
+
+        var denji = CreateCharacter("Denji");
+
+        var power = CreateCharacter("Power");
+
+        var anime = CreateAnimeWithCharacters("Chainsaw Man", 8.41m, denji, power);
+
+        await SeedAsync(options, anime);
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new AnimeRepository(context);
+
+        var result = await repository.GetByIdAsync(anime.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Equivalent((string[])["Denji", "Power"], result.AnimeCharacters.Select(ac => ac.Character.Name));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsEmptyCharacters_WhenAnimeHasNoCharacters()
+    {
+        var options = CreateOptions();
+
+        var anime = CreateAnime("Steins;Gate", 9.07m);
+
+        await SeedAsync(options, anime);
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new AnimeRepository(context);
+
+        var result = await repository.GetByIdAsync(anime.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.AnimeCharacters);
     }
 }

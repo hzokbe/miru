@@ -1,3 +1,4 @@
+using Miru.DTO;
 using Miru.Enums;
 using Miru.Models;
 using Miru.Repositories;
@@ -22,6 +23,23 @@ public class AnimeServiceUnitTests
         return new Genre { Id = Guid.NewGuid(), Name = name, Description = description };
     }
 
+    private static Character CreateCharacter(string name, CharacterRole role = CharacterRole.Main)
+    {
+        return new Character
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            LastName = name + "Last",
+            JapaneseName = name + "Jp",
+            JapaneseLastName = name + "LastJp",
+            Age = "17",
+            Gender = CharacterGender.Female,
+            Role = role,
+            Description = name + " description.",
+            ImageSource = "/images/character/" + name
+        };
+    }
+
     private static Anime CreateAnimeWithGenres(Guid id, params Genre[] genres)
     {
         return new Anime
@@ -29,6 +47,41 @@ public class AnimeServiceUnitTests
             Id = id,
             AnimeGenres = [.. genres.Select(g => new AnimeGenre { AnimeId = id, GenreId = g.Id, Genre = g })]
         };
+    }
+
+    private static Anime CreateAnimeWithCharacters(Guid id, params Character[] characters)
+    {
+        return new Anime
+        {
+            Id = id,
+            AnimeCharacters =
+            [
+                .. characters.Select(c => new AnimeCharacter { AnimeId = id, CharacterId = c.Id, Character = c })
+            ]
+        };
+    }
+
+    private static void AssertCharacterMapped(Character expected, CharacterResponse actual)
+    {
+        Assert.Equal(expected.Id, actual.Id);
+
+        Assert.Equal(expected.Name, actual.Name);
+
+        Assert.Equal(expected.LastName, actual.LastName);
+
+        Assert.Equal(expected.JapaneseName, actual.JapaneseName);
+
+        Assert.Equal(expected.JapaneseLastName, actual.JapaneseLastName);
+
+        Assert.Equal(expected.Age, actual.Age);
+
+        Assert.Equal(expected.Gender, actual.Gender);
+
+        Assert.Equal(expected.Role, actual.Role);
+
+        Assert.Equal(expected.Description, actual.Description);
+
+        Assert.Equal(expected.ImageSource, actual.ImageSource);
     }
 
     [Fact]
@@ -161,6 +214,58 @@ public class AnimeServiceUnitTests
     }
 
     [Fact]
+    public async Task GetAllAsync_WhenAnimeHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([new Anime { Id = Guid.NewGuid() }]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Empty(Assert.Single(result).Characters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsCharactersCorrectly()
+    {
+        var kaguya = CreateCharacter("Kaguya");
+
+        var miyuki = CreateCharacter("Miyuki", CharacterRole.Supporting);
+
+        var anime = CreateAnimeWithCharacters(Guid.NewGuid(), kaguya, miyuki);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([anime]);
+
+        var result = await _service.GetAllAsync();
+
+        var characters = Assert.Single(result).Characters;
+
+        Assert.Equal(2, characters.Count);
+
+        AssertCharacterMapped(kaguya, characters[0]);
+
+        AssertCharacterMapped(miyuki, characters[1]);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsCharactersForEachAnime()
+    {
+        var frieren = CreateCharacter("Frieren");
+
+        var denji = CreateCharacter("Denji");
+
+        var first = CreateAnimeWithCharacters(Guid.NewGuid(), frieren);
+
+        var second = CreateAnimeWithCharacters(Guid.NewGuid(), denji);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([first, second]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Equal(["Frieren"], result[0].Characters.Select(c => c.Name));
+
+        Assert.Equal(["Denji"], result[1].Characters.Select(c => c.Name));
+    }
+
+    [Fact]
     public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNull()
     {
         _repository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Anime?)null);
@@ -286,5 +391,41 @@ public class AnimeServiceUnitTests
         Assert.Equal(fantasy.Name, result.Genres[1].Name);
 
         Assert.Equal(fantasy.Description, result.Genres[1].Description);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var id = Guid.NewGuid();
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(new Anime { Id = id });
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.Characters);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsCharactersCorrectly()
+    {
+        var id = Guid.NewGuid();
+
+        var denji = CreateCharacter("Denji");
+
+        var power = CreateCharacter("Power", CharacterRole.Supporting);
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(CreateAnimeWithCharacters(id, denji, power));
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(2, result.Characters.Count);
+
+        AssertCharacterMapped(denji, result.Characters[0]);
+
+        AssertCharacterMapped(power, result.Characters[1]);
     }
 }

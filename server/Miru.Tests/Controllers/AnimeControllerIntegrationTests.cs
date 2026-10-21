@@ -47,6 +47,49 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
         return anime;
     }
 
+    private static Anime CreateAnimeWithCharacters()
+    {
+        var anime = AnimeSeedData.Create()[0];
+
+        var characters = CharacterSeedData.Create();
+
+        var animeCharacters = AnimeCharacterSeedData.Create([anime], characters);
+
+        foreach (var animeCharacter in animeCharacters)
+            animeCharacter.Character = characters.First(c => c.Id == animeCharacter.CharacterId);
+
+        anime.AnimeCharacters = animeCharacters;
+
+        return anime;
+    }
+
+    private static void AssertCharactersMapped(Anime anime, List<CharacterResponse> actual)
+    {
+        var expected = anime.AnimeCharacters.Select(ac => ac.Character).ToList();
+
+        Assert.NotEmpty(expected);
+
+        Assert.Equal(expected.Select(c => c.Id), actual.Select(c => c.Id));
+
+        Assert.Equal(expected.Select(c => c.Name), actual.Select(c => c.Name));
+
+        Assert.Equal(expected.Select(c => c.LastName), actual.Select(c => c.LastName));
+
+        Assert.Equal(expected.Select(c => c.JapaneseName), actual.Select(c => c.JapaneseName));
+
+        Assert.Equal(expected.Select(c => c.JapaneseLastName), actual.Select(c => c.JapaneseLastName));
+
+        Assert.Equal(expected.Select(c => c.Age), actual.Select(c => c.Age));
+
+        Assert.Equal(expected.Select(c => c.Gender), actual.Select(c => c.Gender));
+
+        Assert.Equal(expected.Select(c => c.Role), actual.Select(c => c.Role));
+
+        Assert.Equal(expected.Select(c => c.Description), actual.Select(c => c.Description));
+
+        Assert.Equal(expected.Select(c => c.ImageSource), actual.Select(c => c.ImageSource));
+    }
+
     [Fact]
     public async Task GetAllAsync_WhenRepositoryReturnsAnimes_ReturnsOkWithAnimes()
     {
@@ -166,6 +209,32 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     }
 
     [Fact]
+    public async Task GetAllAsync_MapsCharactersFromAnime()
+    {
+        var anime = CreateAnimeWithCharacters();
+
+        _factory.AnimeRepository.GetAllAsync().Returns([anime]);
+
+        var body = await _client.GetFromJsonAsync<List<AnimeResponse>>("/animes", JsonOptions);
+
+        var item = Assert.Single(body!);
+
+        AssertCharactersMapped(anime, item.Characters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenAnimeHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var anime = AnimeSeedData.Create()[0];
+
+        _factory.AnimeRepository.GetAllAsync().Returns([anime]);
+
+        var body = await _client.GetFromJsonAsync<List<AnimeResponse>>("/animes", JsonOptions);
+
+        Assert.Empty(Assert.Single(body!).Characters);
+    }
+
+    [Fact]
     public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNotFound()
     {
         _factory.AnimeRepository.GetByIdAsync(It.IsAny<Guid>()).Returns((Anime?)null);
@@ -275,5 +344,33 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
         Assert.NotNull(body);
 
         Assert.Empty(body.Genres);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsCharactersFromAnime()
+    {
+        var anime = CreateAnimeWithCharacters();
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>("/animes/" + anime.Id, JsonOptions);
+
+        Assert.NotNull(body);
+
+        AssertCharactersMapped(anime, body.Characters);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var anime = AnimeSeedData.Create()[0];
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>("/animes/" + anime.Id, JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Empty(body.Characters);
     }
 }

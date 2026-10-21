@@ -27,6 +27,37 @@ public class AnimeControllerUnitTests
         ];
     }
 
+    private static List<CharacterResponse> CreateCharacters()
+    {
+        return
+        [
+            new CharacterResponse(
+                Guid.NewGuid(),
+                "Kaguya",
+                "Shinomiya",
+                "かぐや",
+                "四宮",
+                null,
+                CharacterGender.Female,
+                CharacterRole.Main,
+                "The student council vice president.",
+                null
+            ),
+            new CharacterResponse(
+                Guid.NewGuid(),
+                "Miyuki",
+                "Shirogane",
+                "御行",
+                "白銀",
+                "17",
+                CharacterGender.Male,
+                CharacterRole.Main,
+                "The student council president.",
+                null
+            )
+        ];
+    }
+
     [Fact]
     public async Task GetAllAsync_WhenServiceReturnsAnimes_ReturnsOkWithAnimes()
     {
@@ -46,6 +77,7 @@ public class AnimeControllerUnitTests
                 new DateOnly(2019, 3, 30),
                 8.40m,
                 "/images/anime/" + id,
+                [],
                 []
             )
         };
@@ -106,7 +138,8 @@ public class AnimeControllerUnitTests
                 null,
                 8.40m,
                 null,
-                genres
+                genres,
+                []
             )
         };
 
@@ -127,7 +160,7 @@ public class AnimeControllerUnitTests
         var animes = new List<AnimeResponse>
         {
             new(Guid.NewGuid(), "Steins;Gate", null, null, AnimeType.Tv, 24, AnimeStatus.FinishedAiring, null, null,
-                null, null, [])
+                null, null, [], [])
         };
 
         _service.Setup(s => s.GetAllAsync()).ReturnsAsync(animes);
@@ -139,6 +172,61 @@ public class AnimeControllerUnitTests
         var body = Assert.IsType<List<AnimeResponse>>(ok.Value);
 
         Assert.Empty(Assert.Single(body).Genres);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenAnimeHasCharacters_ReturnsOkWithCharacters()
+    {
+        var characters = CreateCharacters();
+
+        var animes = new List<AnimeResponse>
+        {
+            new(
+                Guid.NewGuid(),
+                "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+                null,
+                null,
+                AnimeType.Tv,
+                12,
+                AnimeStatus.FinishedAiring,
+                null,
+                null,
+                8.40m,
+                null,
+                [],
+                characters
+            )
+        };
+
+        _service.Setup(s => s.GetAllAsync()).ReturnsAsync(animes);
+
+        var result = await _controller.GetAllAsync();
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+
+        var body = Assert.IsType<List<AnimeResponse>>(ok.Value);
+
+        Assert.Equal(characters, Assert.Single(body).Characters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenAnimeHasNoCharacters_ReturnsOkWithEmptyCharacters()
+    {
+        var animes = new List<AnimeResponse>
+        {
+            new(Guid.NewGuid(), "Steins;Gate", null, null, AnimeType.Tv, 24, AnimeStatus.FinishedAiring, null, null,
+                null, null, [], [])
+        };
+
+        _service.Setup(s => s.GetAllAsync()).ReturnsAsync(animes);
+
+        var result = await _controller.GetAllAsync();
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+
+        var body = Assert.IsType<List<AnimeResponse>>(ok.Value);
+
+        Assert.Empty(Assert.Single(body).Characters);
     }
 
     [Fact]
@@ -170,6 +258,7 @@ public class AnimeControllerUnitTests
             new DateOnly(2020, 6, 27),
             8.61m,
             "/images/anime/" + id,
+            [],
             []
         );
 
@@ -213,7 +302,8 @@ public class AnimeControllerUnitTests
             null,
             null,
             null,
-            genres
+            genres,
+            []
         );
 
         _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(anime);
@@ -244,6 +334,7 @@ public class AnimeControllerUnitTests
             null,
             null,
             null,
+            [],
             []
         );
 
@@ -254,5 +345,69 @@ public class AnimeControllerUnitTests
         var ok = Assert.IsType<OkObjectResult>(result);
 
         Assert.Empty(Assert.IsType<AnimeResponse>(ok.Value).Genres);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasCharacters_ReturnsOkWithCharacters()
+    {
+        var id = Guid.NewGuid();
+
+        var characters = CreateCharacters();
+
+        var anime = new AnimeResponse(
+            id,
+            "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+            null,
+            null,
+            AnimeType.Tv,
+            26,
+            AnimeStatus.FinishedAiring,
+            null,
+            null,
+            null,
+            null,
+            [],
+            characters
+        );
+
+        _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(anime);
+
+        var result = await _controller.GetByIdAsync(id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        var body = Assert.IsType<AnimeResponse>(ok.Value);
+
+        Assert.Equal(characters, body.Characters);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoCharacters_ReturnsOkWithEmptyCharacters()
+    {
+        var id = Guid.NewGuid();
+
+        var anime = new AnimeResponse(
+            id,
+            "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+            null,
+            null,
+            AnimeType.Tv,
+            26,
+            AnimeStatus.FinishedAiring,
+            null,
+            null,
+            null,
+            null,
+            [],
+            []
+        );
+
+        _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(anime);
+
+        var result = await _controller.GetByIdAsync(id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        Assert.Empty(Assert.IsType<AnimeResponse>(ok.Value).Characters);
     }
 }

@@ -32,7 +32,8 @@ public class AnimeService(IAnimeRepository repository) : IAnimeService
             anime.AiredTo,
             anime.Score,
             anime.ImageSource,
-            [.. anime.AnimeGenres.Select(ag => ToResponse(ag.Genre))]
+            [.. anime.AnimeGenres.Select(ag => ToResponse(ag.Genre))],
+            [.. anime.AnimeCharacters.Select(ac => ToResponse(ac.Character))]
         );
     }
 
@@ -42,6 +43,22 @@ public class AnimeService(IAnimeRepository repository) : IAnimeService
             genre.Id,
             genre.Name,
             genre.Description
+        );
+    }
+
+    private static CharacterResponse ToResponse(Character character)
+    {
+        return new CharacterResponse(
+            character.Id,
+            character.Name,
+            character.LastName,
+            character.JapaneseName,
+            character.JapaneseLastName,
+            character.Age,
+            character.Gender,
+            character.Role,
+            character.Description,
+            character.ImageSource
         );
     }
 }

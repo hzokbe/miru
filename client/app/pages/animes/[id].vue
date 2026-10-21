@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import CharacterCard from '~/components/CharacterCard.vue';
+
 const route = useRoute();
 
 const { anime, status, refresh } = useAnime(route.params.id as string);
@@ -54,88 +56,109 @@ const formatDate = (value: string | null): string => {
       title="Unable to load anime"
     />
   </UPageSection>
-  <UPageSection v-else-if="status === 'success' && anime">
-    <template #header>
-      <div class="flex flex-col items-center justify-center gap-4">
-        <AppImage :alt="anime.title" :src="anime.imageSource" size="md" />
-        <div>
-          <h2
-            class="text-3xl sm:text-4xl lg:text-5xl text-pretty tracking-tight font-bold text-highlighted text-center"
-          >
-            {{ anime.title }}
-          </h2>
-          <h3
-            v-if="anime.japaneseTitle"
-            class="text-base sm:text-lg text-muted text-center text-balance mt-6"
-          >
-            {{ anime.japaneseTitle }}
-          </h3>
-        </div>
-      </div>
-    </template>
-    <UCard>
+  <div v-else-if="status === 'success' && anime" class="flex flex-col">
+    <UPageSection>
       <template #header>
-        <p class="text-base sm:text-lg text-muted">
-          {{ anime.synopsis ?? 'No synopsis' }}
-        </p>
+        <div class="flex flex-col items-center justify-center gap-4">
+          <AppImage :alt="anime.title" :src="anime.imageSource" size="md" />
+          <div>
+            <h2
+              class="text-3xl sm:text-4xl lg:text-5xl text-pretty tracking-tight font-bold text-highlighted text-center"
+            >
+              {{ anime.title }}
+            </h2>
+            <h3
+              v-if="anime.japaneseTitle"
+              class="text-base sm:text-lg text-muted text-center text-balance mt-6"
+            >
+              {{ anime.japaneseTitle }}
+            </h3>
+          </div>
+        </div>
       </template>
-      <template #footer>
-        <div class="flex flex-wrap gap-2">
-          <UBadge
-            color="neutral"
-            data-testid="anime-score"
-            icon="i-lucide-star"
-            variant="outline"
-          >
-            {{ anime.score ?? 0.0 }}
-          </UBadge>
-          <UBadge
-            color="neutral"
-            data-testid="anime-type"
-            icon="i-lucide-tv"
-            variant="outline"
-          >
-            {{ formatAnimeType(anime.type) }}
-          </UBadge>
-          <UBadge
-            color="neutral"
-            data-testid="anime-episodes"
-            icon="i-lucide-list-video"
-            variant="outline"
-          >
-            {{ anime.episodes ?? 0 }} episodes
-          </UBadge>
-          <UBadge
-            color="neutral"
-            data-testid="anime-status"
-            icon="i-lucide-info"
-            variant="outline"
-          >
-            {{ formatStatus(anime.status) }}
-          </UBadge>
-          <UBadge
-            color="neutral"
-            data-testid="anime-aired"
-            icon="i-lucide-calendar"
-            variant="outline"
-          >
-            {{ formatDate(anime.airedFrom) }} -
-            {{ formatDate(anime.airedTo) }}
-          </UBadge>
-          <template v-if="anime.genres">
+      <UCard>
+        <template #header>
+          <p class="text-base sm:text-lg text-muted">
+            {{ anime.synopsis ?? 'No synopsis' }}
+          </p>
+        </template>
+        <template #footer>
+          <div class="flex flex-wrap gap-2">
             <UBadge
-              v-for="genre in anime.genres"
-              :key="genre.id"
               color="neutral"
-              data-testid="anime-genre"
-              icon="i-lucide-drama"
+              data-testid="anime-score"
+              icon="i-lucide-star"
               variant="outline"
             >
-              {{ genre.name }}
+              {{ anime.score ?? 0.0 }}
             </UBadge>
-          </template>
-        </div>
-      </template>
-    </UCard>
-  </UPageSection>
+            <UBadge
+              color="neutral"
+              data-testid="anime-type"
+              icon="i-lucide-tv"
+              variant="outline"
+            >
+              {{ formatAnimeType(anime.type) }}
+            </UBadge>
+            <UBadge
+              color="neutral"
+              data-testid="anime-episodes"
+              icon="i-lucide-list-video"
+              variant="outline"
+            >
+              {{ anime.episodes ?? 0 }} episodes
+            </UBadge>
+            <UBadge
+              color="neutral"
+              data-testid="anime-status"
+              icon="i-lucide-info"
+              variant="outline"
+            >
+              {{ formatStatus(anime.status) }}
+            </UBadge>
+            <UBadge
+              color="neutral"
+              data-testid="anime-aired"
+              icon="i-lucide-calendar"
+              variant="outline"
+            >
+              {{ formatDate(anime.airedFrom) }} -
+              {{ formatDate(anime.airedTo) }}
+            </UBadge>
+            <template v-if="anime.genres">
+              <UBadge
+                v-for="genre in anime.genres"
+                :key="genre.id"
+                color="neutral"
+                data-testid="anime-genre"
+                icon="i-lucide-drama"
+                variant="outline"
+              >
+                {{ genre.name }}
+              </UBadge>
+            </template>
+          </div>
+        </template>
+      </UCard>
+    </UPageSection>
+    <USeparator />
+    <UPageSection title="Characters">
+      <UPageGrid>
+        <CharacterCard
+          v-for="character in anime.characters"
+          :id="character.id"
+          :key="character.id"
+          :age="character.age"
+          :description="character.description"
+          :gender="character.gender"
+          :image-source="character.imageSource"
+          :japanese-last-name="character.japaneseLastName"
+          :japanese-name="character.japaneseName"
+          :last-name="character.lastName"
+          :name="character.name"
+          :role="character.role"
+        />
+      </UPageGrid>
+    </UPageSection>
+  </div>
 </template>

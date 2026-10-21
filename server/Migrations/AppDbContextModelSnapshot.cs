@@ -82,6 +82,23 @@ namespace Miru.Migrations
                     b.ToTable("Animes");
                 });
 
+            modelBuilder.Entity("Miru.Models.AnimeCharacter", b =>
+                {
+                    b.Property<Guid>("AnimeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("anime_id");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("character_id");
+
+                    b.HasKey("AnimeId", "CharacterId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("AnimeCharacters");
+                });
+
             modelBuilder.Entity("Miru.Models.AnimeGenre", b =>
                 {
                     b.Property<Guid>("AnimeId")
@@ -97,6 +114,64 @@ namespace Miru.Migrations
                     b.HasIndex("GenreId");
 
                     b.ToTable("AnimeGenres");
+                });
+
+            modelBuilder.Entity("Miru.Models.Character", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Age")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("age");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasColumnName("gender");
+
+                    b.Property<string>("ImageSource")
+                        .HasColumnType("text")
+                        .HasColumnName("image_source");
+
+                    b.Property<string>("JapaneseLastName")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("japanese_last_name");
+
+                    b.Property<string>("JapaneseName")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("japanese_name");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("last_name");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("role");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Characters");
                 });
 
             modelBuilder.Entity("Miru.Models.Genre", b =>
@@ -196,6 +271,25 @@ namespace Miru.Migrations
                     b.ToTable("MangaGenres");
                 });
 
+            modelBuilder.Entity("Miru.Models.AnimeCharacter", b =>
+                {
+                    b.HasOne("Miru.Models.Anime", "Anime")
+                        .WithMany("AnimeCharacters")
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Miru.Models.Character", "Character")
+                        .WithMany("AnimeCharacters")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Anime");
+
+                    b.Navigation("Character");
+                });
+
             modelBuilder.Entity("Miru.Models.AnimeGenre", b =>
                 {
                     b.HasOne("Miru.Models.Anime", "Anime")
@@ -236,7 +330,14 @@ namespace Miru.Migrations
 
             modelBuilder.Entity("Miru.Models.Anime", b =>
                 {
+                    b.Navigation("AnimeCharacters");
+
                     b.Navigation("AnimeGenres");
+                });
+
+            modelBuilder.Entity("Miru.Models.Character", b =>
+                {
+                    b.Navigation("AnimeCharacters");
                 });
 
             modelBuilder.Entity("Miru.Models.Genre", b =>
