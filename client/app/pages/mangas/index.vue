@@ -34,6 +34,7 @@ const showLoading = import.meta.client ? useDelay(isLoading) : ref(false);
         :id="manga.id"
         :key="manga.id"
         :chapters="manga.chapters"
+        :genres="manga.genres"
         :image-source="manga.imageSource"
         :score="manga.score"
         :status="manga.status"

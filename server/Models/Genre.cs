@@ -9,4 +9,6 @@ public class Genre
     public string? Description { get; set; } = string.Empty;
 
     public ICollection<AnimeGenre> AnimeGenres { get; set; } = new List<AnimeGenre>();
+
+    public ICollection<MangaGenre> MangaGenres { get; set; } = new List<MangaGenre>();
 }

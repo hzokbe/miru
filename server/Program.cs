@@ -31,6 +31,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
         var animeGenres = context.Set<AnimeGenre>();
 
+        var mangaGenres = context.Set<MangaGenre>();
+
         if (!animes.Any()) animes.AddRange(AnimeSeedData.Create());
 
         if (!mangas.Any()) mangas.AddRange(MangaSeedData.Create());
@@ -40,6 +42,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         context.SaveChanges();
 
         if (!animeGenres.Any()) animeGenres.AddRange(AnimeGenreSeedData.Create([.. animes], [.. genres]));
+
+        if (!mangaGenres.Any()) mangaGenres.AddRange(MangaGenreSeedData.Create([.. mangas], [.. genres]));
 
         context.SaveChanges();
     });
@@ -54,6 +58,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
         var animeGenres = context.Set<AnimeGenre>();
 
+        var mangaGenres = context.Set<MangaGenre>();
+
         if (!await animes.AnyAsync(cancellationToken)) animes.AddRange(AnimeSeedData.Create());
 
         if (!await mangas.AnyAsync(cancellationToken)) mangas.AddRange(MangaSeedData.Create());
@@ -66,6 +72,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             animeGenres.AddRange(
                 AnimeGenreSeedData.Create(
                     await animes.ToListAsync(cancellationToken),
+                    await genres.ToListAsync(cancellationToken)
+                )
+            );
+
+        if (!await mangaGenres.AnyAsync(cancellationToken))
+            mangaGenres.AddRange(
+                MangaGenreSeedData.Create(
+                    await mangas.ToListAsync(cancellationToken),
                     await genres.ToListAsync(cancellationToken)
                 )
             );

@@ -26,6 +26,20 @@ const mangasFixture = [
     publishedTo: '2022-11-02',
     score: 8.88,
     imageSource: '1bad1470-01d4-4664-80bd-90cced7a6279.jpg',
+    genres: [
+      {
+        id: '0fec3a53-a8d9-4b06-974b-4fb0211f9556',
+        name: 'Comedy',
+        description:
+          'Humor-focused stories meant to entertain through jokes, absurd situations and witty banter.',
+      },
+      {
+        id: '76918d56-1d6b-4603-b2c4-9cf8e4f2625e',
+        name: 'Romance',
+        description:
+          'Stories centered on love, attraction and the development of romantic relationships.',
+      },
+    ],
   },
   {
     id: 'cfd9a9ef-e1e2-40f6-ae13-d7f0feacc22a',
@@ -40,6 +54,20 @@ const mangasFixture = [
     publishedTo: '2015-05-21',
     score: 9.27,
     imageSource: 'cfd9a9ef-e1e2-40f6-ae13-d7f0feacc22a.jpg',
+    genres: [
+      {
+        id: '0e48347e-29ea-49fd-aab2-85604f0fadb5',
+        name: 'Action',
+        description:
+          'Fast-paced stories driven by combat, chases and high-stakes physical conflict.',
+      },
+      {
+        id: 'd851ec0a-5ee7-4beb-978b-34c547bb67ec',
+        name: 'Adventure',
+        description:
+          'Journeys and quests through unfamiliar places, full of exploration and risk.',
+      },
+    ],
   },
 ];
 
@@ -105,6 +133,10 @@ describe('MangaPage integration', () => {
 
     expect(wrapper.text()).toContain('Sep 03, 1988 - May 21, 2015');
 
+    expect(wrapper.text()).toContain('Action');
+
+    expect(wrapper.text()).toContain('Adventure');
+
     expect(wrapper.findComponent(UProgress).exists()).toBe(false);
 
     expect(wrapper.findComponent(UEmpty).exists()).toBe(false);
@@ -128,6 +160,10 @@ describe('MangaPage integration', () => {
     expect(wrapper.text()).toContain('28 volumes');
 
     expect(wrapper.text()).toContain('May 19, 2015 - Nov 02, 2022');
+
+    expect(wrapper.text()).toContain('Comedy');
+
+    expect(wrapper.text()).toContain('Romance');
   });
 
   it('shows the progress bar and no manga while the request is in flight', async () => {
@@ -160,6 +196,8 @@ describe('MangaPage integration', () => {
 
     expect(wrapper.find('[data-testid="manga-score"]').exists()).toBe(false);
 
+    expect(wrapper.find('[data-testid="manga-genre"]').exists()).toBe(false);
+
     expect(wrapper.findComponent(UProgress).exists()).toBe(false);
   });
 
@@ -184,6 +222,10 @@ describe('MangaPage integration', () => {
 
     await vi.waitFor(() =>
       expect(wrapper.find('[data-testid="manga-score"]').exists()).toBe(true),
+    );
+
+    await vi.waitFor(() =>
+      expect(wrapper.find('[data-testid="manga-genre"]').exists()).toBe(true),
     );
 
     expect(wrapper.find('h2').text()).toBe('Vagabond');

@@ -122,6 +122,18 @@ const formatDate = (value: string | null): string => {
             {{ formatDate(manga.publishedFrom) }} -
             {{ formatDate(manga.publishedTo) }}
           </UBadge>
+          <template v-if="manga.genres">
+            <UBadge
+              v-for="genre in manga.genres"
+              :key="genre.id"
+              color="neutral"
+              data-testid="manga-genre"
+              icon="i-lucide-drama"
+              variant="outline"
+            >
+              {{ genre.name }}
+            </UBadge>
+          </template>
         </div>
       </template>
     </UCard>

@@ -31,6 +31,20 @@ const mangaFixture = {
   publishedTo: '2015-05-21',
   score: 9.27,
   imageSource: 'cfd9a9ef-e1e2-40f6-ae13-d7f0feacc22a.jpg',
+  genres: [
+    {
+      id: '0e48347e-29ea-49fd-aab2-85604f0fadb5',
+      name: 'Action',
+      description:
+        'Fast-paced stories driven by combat, chases and high-stakes physical conflict.',
+    },
+    {
+      id: 'd851ec0a-5ee7-4beb-978b-34c547bb67ec',
+      name: 'Adventure',
+      description:
+        'Journeys and quests through unfamiliar places, full of exploration and risk.',
+    },
+  ],
 } as unknown as MangaResponse;
 
 const mockUseManga = (state: {
@@ -121,7 +135,7 @@ describe('MangaPage', () => {
       expect(wrapper.text()).toContain('No synopsis');
     });
 
-    it('renders the score, chapters, volumes, status and published dates', async () => {
+    it('renders the score, chapters, volumes, status, published dates and genres', async () => {
       mockUseManga({ manga: mangaFixture, status: 'success' });
 
       const wrapper = await mountPage();
@@ -143,6 +157,27 @@ describe('MangaPage', () => {
       expect(wrapper.get('[data-testid="manga-published"]').text()).toBe(
         'Sep 03, 1988 - May 21, 2015',
       );
+
+      expect(wrapper.findAll('[data-testid="manga-genre"]')).toHaveLength(2);
+
+      expect(
+        wrapper.find('[data-testid="manga-genres-overflow"]').exists(),
+      ).toBe(false);
+    });
+
+    it('does not render genres when there are no genres', async () => {
+      mockUseManga({
+        manga: { ...mangaFixture, genres: [] },
+        status: 'success',
+      });
+
+      const wrapper = await mountPage();
+
+      expect(wrapper.findAll('[data-testid="manga-genre"]')).toHaveLength(0);
+
+      expect(
+        wrapper.find('[data-testid="manga-genres-overflow"]').exists(),
+      ).toBe(false);
     });
 
     it.each([

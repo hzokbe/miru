@@ -16,6 +16,26 @@ const baseProps = {
   status: 'OnHiatus' as MangaStatus,
   score: 8.87,
   imageSource: '3a3d026e-840c-4fdc-a0b8-c1f2230e6c90.jpg',
+  genres: [
+    {
+      id: '9cb2ae6c-2989-41e9-942b-898d6816cb9e',
+      name: 'Drama',
+      description:
+        'Emotionally driven stories centered on realistic conflicts and character development.',
+    },
+    {
+      id: 'd851ec0a-5ee7-4beb-978b-34c547bb67ec',
+      name: 'Adventure',
+      description:
+        'Journeys and quests through unfamiliar places, full of exploration and risk.',
+    },
+    {
+      id: '45373347-01a1-4bfb-bb07-c43450ce1dbe',
+      name: 'Fantasy',
+      description:
+        'Stories set in worlds with magic, mythical creatures and supernatural elements.',
+    },
+  ],
 };
 
 describe('MangaCard', () => {
@@ -55,7 +75,7 @@ describe('MangaCard', () => {
     expect(wrapper.text()).toContain('No synopsis');
   });
 
-  it('renders the score, chapters, volumes and status', async () => {
+  it('renders the score, chapters, volumes, status and genres', async () => {
     const wrapper = await mountSuspended(MangaCard, {
       props: { ...baseProps },
     });
@@ -72,6 +92,12 @@ describe('MangaCard', () => {
 
     expect(wrapper.get('[data-testid="manga-status"]').text()).toBe(
       'On Hiatus',
+    );
+
+    expect(wrapper.findAll('[data-testid="manga-genre"]')).toHaveLength(2);
+
+    expect(wrapper.get('[data-testid="manga-genres-overflow"]').text()).toBe(
+      '+ 1',
     );
   });
 

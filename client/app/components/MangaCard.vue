@@ -15,6 +15,8 @@ defineProps<{
   score: number | null;
 
   imageSource: string | null;
+
+  genres: GenreResponse[];
 }>();
 
 const formatStatus = (value: string): string =>
@@ -82,6 +84,38 @@ const formatStatus = (value: string): string =>
         >
           {{ formatStatus(status) }}
         </UBadge>
+        <template v-if="genres && genres.length <= 2">
+          <UBadge
+            v-for="genre in genres"
+            :key="genre.id"
+            color="neutral"
+            data-testid="manga-genre"
+            icon="i-lucide-drama"
+            variant="outline"
+          >
+            {{ genre.name }}
+          </UBadge>
+        </template>
+        <template v-if="genres && genres.length > 2">
+          <UBadge
+            v-for="genre in genres.slice(0, 2)"
+            :key="genre.id"
+            color="neutral"
+            data-testid="manga-genre"
+            icon="i-lucide-drama"
+            variant="outline"
+          >
+            {{ genre.name }}
+          </UBadge>
+          <UBadge
+            color="neutral"
+            data-testid="manga-genres-overflow"
+            icon="i-lucide-drama"
+            variant="outline"
+          >
+            + {{ genres.length - 2 }}
+          </UBadge>
+        </template>
       </div>
     </template>
   </UCard>

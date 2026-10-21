@@ -13,6 +13,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<AnimeGenre> AnimeGenres => Set<AnimeGenre>();
 
+    public DbSet<MangaGenre> MangaGenres => Set<MangaGenre>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
@@ -41,6 +43,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(ag => ag.Genre).WithMany(c => c.AnimeGenres).HasForeignKey(ac => ac.GenreId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<MangaGenre>(entity =>
+        {
+            entity.HasKey(mg => new { mg.MangaId, mg.GenreId });
+
+            entity.HasOne(mg => mg.Manga).WithMany(m => m.MangaGenres).HasForeignKey(ac => ac.MangaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(mg => mg.Genre).WithMany(c => c.MangaGenres).HasForeignKey(ac => ac.GenreId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

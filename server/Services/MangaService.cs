@@ -31,7 +31,17 @@ public class MangaService(IMangaRepository repository) : IMangaService
             manga.PublishedFrom,
             manga.PublishedTo,
             manga.Score,
-            manga.ImageSource
+            manga.ImageSource,
+            [.. manga.MangaGenres.Select(mg => ToResponse(mg.Genre))]
+        );
+    }
+
+    private static GenreResponse ToResponse(Genre genre)
+    {
+        return new GenreResponse(
+            genre.Id,
+            genre.Name,
+            genre.Description
         );
     }
 }
