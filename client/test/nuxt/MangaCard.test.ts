@@ -83,11 +83,11 @@ describe('MangaCard', () => {
     expect(wrapper.get('[data-testid="manga-score"]').text()).toBe('8.87');
 
     expect(wrapper.get('[data-testid="manga-chapters"]').text()).toBe(
-      '0 chapters',
+      '147 chapters',
     );
 
     expect(wrapper.get('[data-testid="manga-volumes"]').text()).toBe(
-      '0 volumes',
+      '15 volumes',
     );
 
     expect(wrapper.get('[data-testid="manga-status"]').text()).toBe(

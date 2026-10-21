@@ -35,6 +35,37 @@ public class MangaControllerUnitTests
         ];
     }
 
+    private static List<CharacterResponse> CreateCharacters()
+    {
+        return
+        [
+            new CharacterResponse(
+                Guid.NewGuid(),
+                "Kaguya",
+                "Shinomiya",
+                "Kaguya",
+                "Shinomiya",
+                "17",
+                CharacterGender.Female,
+                CharacterRole.Main,
+                "Vice president of the student council.",
+                "/images/character/kaguya"
+            ),
+            new CharacterResponse(
+                Guid.NewGuid(),
+                "Miyuki",
+                "Shirogane",
+                "Miyuki",
+                "Shirogane",
+                "17",
+                CharacterGender.Male,
+                CharacterRole.Main,
+                "President of the student council.",
+                "/images/character/miyuki"
+            )
+        ];
+    }
+
     [Fact]
     public async Task GetAllAsync_WhenServiceReturnsMangas_ReturnsOkWithMangas()
     {
@@ -54,6 +85,7 @@ public class MangaControllerUnitTests
                 new DateOnly(2022, 11, 2),
                 8.88m,
                 "/images/manga/" + id,
+                [],
                 []
             )
         };
@@ -112,7 +144,8 @@ public class MangaControllerUnitTests
                 new DateOnly(2013, 11, 2),
                 8.97m,
                 null,
-                genres
+                genres,
+                []
             )
         };
 
@@ -144,6 +177,7 @@ public class MangaControllerUnitTests
                 null,
                 8.92m,
                 null,
+                [],
                 []
             )
         };
@@ -157,6 +191,74 @@ public class MangaControllerUnitTests
         var body = Assert.IsType<List<MangaResponse>>(ok.Value);
 
         Assert.Empty(Assert.Single(body).Genres);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenMangaHasCharacters_ReturnsOkWithCharacters()
+    {
+        var characters = CreateCharacters();
+
+        var mangas = new List<MangaResponse>
+        {
+            new(
+                Guid.NewGuid(),
+                "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+                "かぐや様は告らせたい～天才たちの恋愛頭脳戦～",
+                null,
+                281,
+                28,
+                MangaStatus.Finished,
+                new DateOnly(2015, 5, 19),
+                new DateOnly(2022, 11, 2),
+                8.88m,
+                null,
+                [],
+                characters
+            )
+        };
+
+        _service.Setup(s => s.GetAllAsync()).ReturnsAsync(mangas);
+
+        var result = await _controller.GetAllAsync();
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+
+        var body = Assert.IsType<List<MangaResponse>>(ok.Value);
+
+        Assert.Equal(characters, Assert.Single(body).Characters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenMangaHasNoCharacters_ReturnsOkWithEmptyCharacters()
+    {
+        var mangas = new List<MangaResponse>
+        {
+            new(
+                Guid.NewGuid(),
+                "Yotsuba to!",
+                "よつばと!",
+                null,
+                null,
+                null,
+                MangaStatus.Publishing,
+                new DateOnly(2003, 1, 21),
+                null,
+                8.92m,
+                null,
+                [],
+                []
+            )
+        };
+
+        _service.Setup(s => s.GetAllAsync()).ReturnsAsync(mangas);
+
+        var result = await _controller.GetAllAsync();
+
+        var ok = Assert.IsType<OkObjectResult>(result.Result);
+
+        var body = Assert.IsType<List<MangaResponse>>(ok.Value);
+
+        Assert.Empty(Assert.Single(body).Characters);
     }
 
     [Fact]
@@ -188,6 +290,7 @@ public class MangaControllerUnitTests
             new DateOnly(2022, 11, 2),
             8.88m,
             "/images/manga/" + id,
+            [],
             []
         );
 
@@ -231,7 +334,8 @@ public class MangaControllerUnitTests
             new DateOnly(2013, 11, 2),
             8.97m,
             null,
-            genres
+            genres,
+            []
         );
 
         _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(manga);
@@ -262,6 +366,7 @@ public class MangaControllerUnitTests
             null,
             8.92m,
             null,
+            [],
             []
         );
 
@@ -272,5 +377,69 @@ public class MangaControllerUnitTests
         var ok = Assert.IsType<OkObjectResult>(result);
 
         Assert.Empty(Assert.IsType<MangaResponse>(ok.Value).Genres);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaHasCharacters_ReturnsOkWithCharacters()
+    {
+        var id = Guid.NewGuid();
+
+        var characters = CreateCharacters();
+
+        var manga = new MangaResponse(
+            id,
+            "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+            "かぐや様は告らせたい～天才たちの恋愛頭脳戦～",
+            null,
+            281,
+            28,
+            MangaStatus.Finished,
+            new DateOnly(2015, 5, 19),
+            new DateOnly(2022, 11, 2),
+            8.88m,
+            null,
+            [],
+            characters
+        );
+
+        _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(manga);
+
+        var result = await _controller.GetByIdAsync(id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        var body = Assert.IsType<MangaResponse>(ok.Value);
+
+        Assert.Equal(characters, body.Characters);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaHasNoCharacters_ReturnsOkWithEmptyCharacters()
+    {
+        var id = Guid.NewGuid();
+
+        var manga = new MangaResponse(
+            id,
+            "Yotsuba to!",
+            "よつばと!",
+            null,
+            null,
+            null,
+            MangaStatus.Publishing,
+            new DateOnly(2003, 1, 21),
+            null,
+            8.92m,
+            null,
+            [],
+            []
+        );
+
+        _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync(manga);
+
+        var result = await _controller.GetByIdAsync(id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        Assert.Empty(Assert.IsType<MangaResponse>(ok.Value).Characters);
     }
 }

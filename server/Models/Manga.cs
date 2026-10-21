@@ -27,4 +27,6 @@ public class Manga
     public string? ImageSource { get; set; } = string.Empty;
 
     public ICollection<MangaGenre> MangaGenres { get; set; } = new List<MangaGenre>();
+
+    public ICollection<MangaCharacter> MangaCharacters { get; set; } = new List<MangaCharacter>();
 }

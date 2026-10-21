@@ -1,3 +1,4 @@
+using Miru.DTO;
 using Miru.Enums;
 using Miru.Models;
 using Miru.Repositories;
@@ -22,6 +23,23 @@ public class MangaServiceUnitTests
         return new Genre { Id = Guid.NewGuid(), Name = name, Description = description };
     }
 
+    private static Character CreateCharacter(string name, CharacterRole role = CharacterRole.Main)
+    {
+        return new Character
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            LastName = name + "Last",
+            JapaneseName = name + "Jp",
+            JapaneseLastName = name + "LastJp",
+            Age = "17",
+            Gender = CharacterGender.Female,
+            Role = role,
+            Description = name + " description.",
+            ImageSource = "/images/character/" + name
+        };
+    }
+
     private static Manga CreateMangaWithGenres(Guid id, params Genre[] genres)
     {
         return new Manga
@@ -29,6 +47,41 @@ public class MangaServiceUnitTests
             Id = id,
             MangaGenres = [.. genres.Select(g => new MangaGenre { MangaId = id, GenreId = g.Id, Genre = g })]
         };
+    }
+
+    private static Manga CreateMangaWithCharacters(Guid id, params Character[] characters)
+    {
+        return new Manga
+        {
+            Id = id,
+            MangaCharacters =
+            [
+                .. characters.Select(c => new MangaCharacter { MangaId = id, CharacterId = c.Id, Character = c })
+            ]
+        };
+    }
+
+    private static void AssertCharacterMapped(Character expected, CharacterResponse actual)
+    {
+        Assert.Equal(expected.Id, actual.Id);
+
+        Assert.Equal(expected.Name, actual.Name);
+
+        Assert.Equal(expected.LastName, actual.LastName);
+
+        Assert.Equal(expected.JapaneseName, actual.JapaneseName);
+
+        Assert.Equal(expected.JapaneseLastName, actual.JapaneseLastName);
+
+        Assert.Equal(expected.Age, actual.Age);
+
+        Assert.Equal(expected.Gender, actual.Gender);
+
+        Assert.Equal(expected.Role, actual.Role);
+
+        Assert.Equal(expected.Description, actual.Description);
+
+        Assert.Equal(expected.ImageSource, actual.ImageSource);
     }
 
     [Fact]
@@ -165,6 +218,58 @@ public class MangaServiceUnitTests
     }
 
     [Fact]
+    public async Task GetAllAsync_WhenMangaHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([new Manga { Id = Guid.NewGuid() }]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Empty(Assert.Single(result).Characters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsCharactersCorrectly()
+    {
+        var kaguya = CreateCharacter("Kaguya");
+
+        var miyuki = CreateCharacter("Miyuki", CharacterRole.Supporting);
+
+        var manga = CreateMangaWithCharacters(Guid.NewGuid(), kaguya, miyuki);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([manga]);
+
+        var result = await _service.GetAllAsync();
+
+        var characters = Assert.Single(result).Characters;
+
+        Assert.Equal(2, characters.Count);
+
+        AssertCharacterMapped(kaguya, characters[0]);
+
+        AssertCharacterMapped(miyuki, characters[1]);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsCharactersForEachManga()
+    {
+        var punpun = CreateCharacter("Punpun");
+
+        var yotsuba = CreateCharacter("Yotsuba");
+
+        var first = CreateMangaWithCharacters(Guid.NewGuid(), punpun);
+
+        var second = CreateMangaWithCharacters(Guid.NewGuid(), yotsuba);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([first, second]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Equal(["Punpun"], result[0].Characters.Select(c => c.Name));
+
+        Assert.Equal(["Yotsuba"], result[1].Characters.Select(c => c.Name));
+    }
+
+    [Fact]
     public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNull()
     {
         _repository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Manga?)null);
@@ -298,5 +403,41 @@ public class MangaServiceUnitTests
         Assert.Equal(fantasy.Name, result.Genres[1].Name);
 
         Assert.Equal(fantasy.Description, result.Genres[1].Description);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var id = Guid.NewGuid();
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(new Manga { Id = id });
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.Characters);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsCharactersCorrectly()
+    {
+        var id = Guid.NewGuid();
+
+        var musashi = CreateCharacter("Musashi");
+
+        var matahachi = CreateCharacter("Matahachi", CharacterRole.Supporting);
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(CreateMangaWithCharacters(id, musashi, matahachi));
+
+        var result = await _service.GetByIdAsync(id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(2, result.Characters.Count);
+
+        AssertCharacterMapped(musashi, result.Characters[0]);
+
+        AssertCharacterMapped(matahachi, result.Characters[1]);
     }
 }

@@ -3,6 +3,7 @@ import { ref, type Ref } from 'vue';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { UEmpty, UProgress } from '#components';
 import AppImage from '~/components/AppImage.vue';
+import CharacterCard from '~/components/CharacterCard.vue';
 import MangaPage from '~/pages/mangas/[id].vue';
 
 const { useMangaMock, refreshMock } = vi.hoisted(() => ({
@@ -18,33 +19,63 @@ mockNuxtImport('useAPIHealth', () => () => ({ checkHealth: vi.fn() }));
 
 const mangaId = 'cfd9a9ef-e1e2-40f6-ae13-d7f0feacc22a';
 
+const charactersFixture = [
+  {
+    id: '11111111-1111-4111-8111-111111111111',
+    name: 'Frieren',
+    lastName: null,
+    japaneseName: 'フリーレン',
+    japaneseLastName: null,
+    age: '1000+',
+    gender: 'Female',
+    role: 'Main',
+    description:
+      'A long-lived elf mage who defeated the Demon King and now travels to understand humans and her fallen companions.',
+    imageSource: '11111111-1111-4111-8111-111111111111.jpg',
+  },
+  {
+    id: '22222222-2222-4222-8222-222222222222',
+    name: 'Fern',
+    lastName: null,
+    japaneseName: 'フェルン',
+    japaneseLastName: null,
+    age: null,
+    gender: 'Female',
+    role: 'Main',
+    description:
+      "Heiter's adopted daughter and Frieren's apprentice, serious and mature, who looks after the party like a mother.",
+    imageSource: '22222222-2222-4222-8222-222222222222.jpg',
+  },
+];
+
 const mangaFixture = {
   id: mangaId,
-  title: 'Vagabond',
+  title: 'Sousou no Frieren',
   japaneseTitle: null,
   synopsis:
-    'Takezo, a violent and reckless youth, leaves his village in search of glory. Taking the name Miyamoto Musashi, he walks the path of the sword, and each duel and encounter pushes him to question what true strength really means',
-  chapters: 327,
-  volumes: 37,
-  status: 'Finished',
-  publishedFrom: '1988-09-03',
-  publishedTo: '2015-05-21',
-  score: 9.27,
+    "After a hero's party defeats the Demon King, the long-lived elf mage Frieren outlives her old companions. Realizing she never truly got to know them, she sets out on a new journey with a young apprentice to revisit the places they once shared.",
+  chapters: 147,
+  volumes: 15,
+  status: 'OnHiatus',
+  publishedFrom: '2020-04-28',
+  publishedTo: '2025-10-15',
+  score: 8.87,
   imageSource: 'cfd9a9ef-e1e2-40f6-ae13-d7f0feacc22a.jpg',
   genres: [
     {
       id: '0e48347e-29ea-49fd-aab2-85604f0fadb5',
-      name: 'Action',
-      description:
-        'Fast-paced stories driven by combat, chases and high-stakes physical conflict.',
-    },
-    {
-      id: 'd851ec0a-5ee7-4beb-978b-34c547bb67ec',
       name: 'Adventure',
       description:
         'Journeys and quests through unfamiliar places, full of exploration and risk.',
     },
+    {
+      id: 'd851ec0a-5ee7-4beb-978b-34c547bb67ec',
+      name: 'Fantasy',
+      description:
+        'Stories set in imaginary worlds with magic, mythical creatures and supernatural elements.',
+    },
   ],
+  characters: charactersFixture,
 } as unknown as MangaResponse;
 
 const mockUseManga = (state: {
@@ -80,7 +111,7 @@ describe('MangaPage', () => {
 
       const wrapper = await mountPage();
 
-      expect(wrapper.find('h2').text()).toBe('Vagabond');
+      expect(wrapper.find('h2').text()).toBe('Sousou no Frieren');
     });
 
     it('does not render the japanese title when it is null', async () => {
@@ -88,18 +119,18 @@ describe('MangaPage', () => {
 
       const wrapper = await mountPage();
 
-      expect(wrapper.find('h3').exists()).toBe(false);
+      expect(wrapper.find('h2 + h3').exists()).toBe(false);
     });
 
     it('renders the japanese title when present', async () => {
       mockUseManga({
-        manga: { ...mangaFixture, japaneseTitle: 'バガボンド' },
+        manga: { ...mangaFixture, japaneseTitle: '葬送のフリーレン' },
         status: 'success',
       });
 
       const wrapper = await mountPage();
 
-      expect(wrapper.find('h3').text()).toBe('バガボンド');
+      expect(wrapper.find('h2 + h3').text()).toBe('葬送のフリーレン');
     });
 
     it('passes the title and image source to AppImage with the md size', async () => {
@@ -108,7 +139,7 @@ describe('MangaPage', () => {
       const wrapper = await mountPage();
 
       expect(wrapper.findComponent(AppImage).props()).toMatchObject({
-        alt: 'Vagabond',
+        alt: 'Sousou no Frieren',
         src: 'cfd9a9ef-e1e2-40f6-ae13-d7f0feacc22a.jpg',
         size: 'md',
       });
@@ -140,29 +171,25 @@ describe('MangaPage', () => {
 
       const wrapper = await mountPage();
 
-      expect(wrapper.get('[data-testid="manga-score"]').text()).toBe('9.27');
+      expect(wrapper.get('[data-testid="manga-score"]').text()).toBe('8.87');
 
       expect(wrapper.get('[data-testid="manga-chapters"]').text()).toBe(
-        '327 chapters',
+        '147 chapters',
       );
 
       expect(wrapper.get('[data-testid="manga-volumes"]').text()).toBe(
-        '37 volumes',
+        '15 volumes',
       );
 
       expect(wrapper.get('[data-testid="manga-status"]').text()).toBe(
-        'Finished',
+        'On Hiatus',
       );
 
       expect(wrapper.get('[data-testid="manga-published"]').text()).toBe(
-        'Sep 03, 1988 - May 21, 2015',
+        'Apr 28, 2020 - Oct 15, 2025',
       );
 
       expect(wrapper.findAll('[data-testid="manga-genre"]')).toHaveLength(2);
-
-      expect(
-        wrapper.find('[data-testid="manga-genres-overflow"]').exists(),
-      ).toBe(false);
     });
 
     it('does not render genres when there are no genres', async () => {
@@ -174,10 +201,17 @@ describe('MangaPage', () => {
       const wrapper = await mountPage();
 
       expect(wrapper.findAll('[data-testid="manga-genre"]')).toHaveLength(0);
+    });
 
-      expect(
-        wrapper.find('[data-testid="manga-genres-overflow"]').exists(),
-      ).toBe(false);
+    it('does not render genres when genres is null', async () => {
+      mockUseManga({
+        manga: { ...mangaFixture, genres: null } as unknown as MangaResponse,
+        status: 'success',
+      });
+
+      const wrapper = await mountPage();
+
+      expect(wrapper.findAll('[data-testid="manga-genre"]')).toHaveLength(0);
     });
 
     it.each([
@@ -253,7 +287,7 @@ describe('MangaPage', () => {
       const wrapper = await mountPage();
 
       expect(wrapper.get('[data-testid="manga-published"]').text()).toBe(
-        'Sep 03, 1988 - ?',
+        'Apr 28, 2020 - ?',
       );
     });
 
@@ -274,9 +308,72 @@ describe('MangaPage', () => {
 
       expect(wrapper.find('[data-testid="manga-score"]').exists()).toBe(false);
 
+      expect(wrapper.findAllComponents(CharacterCard)).toHaveLength(0);
+
       expect(wrapper.findComponent(UProgress).exists()).toBe(false);
 
       expect(wrapper.findComponent(UEmpty).exists()).toBe(false);
+    });
+  });
+
+  describe('characters', () => {
+    it('renders the characters section title', async () => {
+      mockUseManga({ manga: mangaFixture, status: 'success' });
+
+      const wrapper = await mountPage();
+
+      expect(wrapper.text()).toContain('Characters');
+    });
+
+    it('renders one CharacterCard per character', async () => {
+      mockUseManga({ manga: mangaFixture, status: 'success' });
+
+      const wrapper = await mountPage();
+
+      expect(wrapper.findAllComponents(CharacterCard)).toHaveLength(2);
+    });
+
+    it('passes the character data to each CharacterCard', async () => {
+      mockUseManga({ manga: mangaFixture, status: 'success' });
+
+      const wrapper = await mountPage();
+
+      const cards = wrapper.findAllComponents(CharacterCard);
+
+      expect(cards[0]!.props()).toMatchObject({
+        id: '11111111-1111-4111-8111-111111111111',
+        name: 'Frieren',
+        lastName: null,
+        age: '1000+',
+        gender: 'Female',
+        role: 'Main',
+        description:
+          'A long-lived elf mage who defeated the Demon King and now travels to understand humans and her fallen companions.',
+        imageSource: '11111111-1111-4111-8111-111111111111.jpg',
+      });
+
+      expect(cards[1]!.props()).toMatchObject({
+        id: '22222222-2222-4222-8222-222222222222',
+        name: 'Fern',
+        lastName: null,
+        age: null,
+        gender: 'Female',
+        role: 'Main',
+        description:
+          "Heiter's adopted daughter and Frieren's apprentice, serious and mature, who looks after the party like a mother.",
+        imageSource: '22222222-2222-4222-8222-222222222222.jpg',
+      });
+    });
+
+    it('does not render any CharacterCard when there are no characters', async () => {
+      mockUseManga({
+        manga: { ...mangaFixture, characters: [] },
+        status: 'success',
+      });
+
+      const wrapper = await mountPage();
+
+      expect(wrapper.findAllComponents(CharacterCard)).toHaveLength(0);
     });
   });
 
@@ -292,12 +389,14 @@ describe('MangaPage', () => {
       },
     );
 
-    it('does not render the manga or the error state while loading', async () => {
+    it('does not render the manga, the characters or the error state while loading', async () => {
       mockUseManga({ status: 'pending' });
 
       const wrapper = await mountPage();
 
       expect(wrapper.find('[data-testid="manga-score"]').exists()).toBe(false);
+
+      expect(wrapper.findAllComponents(CharacterCard)).toHaveLength(0);
 
       expect(wrapper.findComponent(UEmpty).exists()).toBe(false);
     });
@@ -320,12 +419,14 @@ describe('MangaPage', () => {
       });
     });
 
-    it('does not render the manga or the progress bar on error', async () => {
+    it('does not render the manga, the characters or the progress bar on error', async () => {
       mockUseManga({ status: 'error' });
 
       const wrapper = await mountPage();
 
       expect(wrapper.find('[data-testid="manga-score"]').exists()).toBe(false);
+
+      expect(wrapper.findAllComponents(CharacterCard)).toHaveLength(0);
 
       expect(wrapper.findComponent(UProgress).exists()).toBe(false);
     });
@@ -353,7 +454,7 @@ describe('MangaPage', () => {
 
       await mountPage();
 
-      await vi.waitFor(() => expect(document.title).toBe('Vagabond'));
+      await vi.waitFor(() => expect(document.title).toBe('Sousou no Frieren'));
     });
 
     it('falls back to the default title when there is no manga', async () => {

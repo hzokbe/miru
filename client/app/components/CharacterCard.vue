@@ -4,7 +4,7 @@ const props = defineProps<{
 
   name: string;
 
-  lastName: string;
+  lastName: string | null;
 
   age: string | null;
 

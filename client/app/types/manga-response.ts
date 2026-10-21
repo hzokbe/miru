@@ -25,4 +25,6 @@ export interface MangaResponse {
   imageSource: string | null;
 
   genres: GenreResponse[];
+
+  characters: CharacterResponse[];
 }

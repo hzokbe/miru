@@ -127,7 +127,7 @@ describe('MangasPage', () => {
         chapters: 281,
         volumes: 28,
         status: 'Finished',
-        score: null,
+        score: 8.88,
         imageSource: '1bad1470-01d4-4664-80bd-90cced7a6279.jpg',
         genres: [
           {

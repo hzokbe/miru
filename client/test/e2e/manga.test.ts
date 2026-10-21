@@ -28,7 +28,7 @@ describe('manga details (real API)', async () => {
   const getMangaHeading = (title: string) =>
     page.getByRole('heading', { level: 2, name: title, exact: true });
 
-  it('shows the details of the clicked manga', async () => {
+  const openFirstManga = async () => {
     page = await createPage('/mangas');
 
     const { firstTitle, title } = await getFirstTitle();
@@ -38,6 +38,12 @@ describe('manga details (real API)', async () => {
     await page.waitForURL(/\/mangas\/[0-9a-f-]{36}$/);
 
     await getMangaHeading(title).waitFor({ state: 'visible' });
+
+    return title;
+  };
+
+  it('shows the details of the clicked manga', async () => {
+    await openFirstManga();
 
     expect(await page.getByTestId('manga-score').isVisible()).toBe(true);
 
@@ -50,16 +56,18 @@ describe('manga details (real API)', async () => {
     expect(await page.getByTestId('manga-published').isVisible()).toBe(true);
   }, 30000);
 
+  it('shows the characters section of the clicked manga', async () => {
+    await openFirstManga();
+
+    const charactersTitle = page.getByText('Characters', { exact: true });
+
+    await charactersTitle.waitFor({ state: 'visible' });
+
+    expect(await charactersTitle.isVisible()).toBe(true);
+  }, 30000);
+
   it('sets the document title to the manga title', async () => {
-    page = await createPage('/mangas');
-
-    const { firstTitle, title } = await getFirstTitle();
-
-    await firstTitle.click();
-
-    await page.waitForURL(/\/mangas\/[0-9a-f-]{36}$/);
-
-    await getMangaHeading(title).waitFor({ state: 'visible' });
+    const title = await openFirstManga();
 
     await vi.waitFor(async () => expect(await page.title()).toContain(title), {
       timeout: 10000,
@@ -87,6 +95,8 @@ describe('manga details (real API)', async () => {
     await errorTitle.waitFor({ state: 'visible' });
 
     expect(await getMangaHeading(title).count()).toBe(0);
+
+    expect(await page.getByText('Characters', { exact: true }).count()).toBe(0);
 
     await page.unroute('**/mangas/*', blockDetailRequest);
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Miru.Data;
+using Miru.Enums;
 using Miru.Models;
 using Miru.Repositories;
 
@@ -36,11 +37,34 @@ public class MangaRepositoryUnitTests
         return new Genre { Id = Guid.NewGuid(), Name = name };
     }
 
+    private static Character CreateCharacter(string name)
+    {
+        return new Character
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Gender = CharacterGender.Unknown,
+            Role = CharacterRole.Main
+        };
+    }
+
     private static Manga CreateMangaWithGenres(string title, decimal? score, params Genre[] genres)
     {
         var manga = CreateManga(title, score);
 
         manga.MangaGenres = [.. genres.Select(g => new MangaGenre { MangaId = manga.Id, GenreId = g.Id, Genre = g })];
+
+        return manga;
+    }
+
+    private static Manga CreateMangaWithCharacters(string title, decimal? score, params Character[] characters)
+    {
+        var manga = CreateManga(title, score);
+
+        manga.MangaCharacters =
+        [
+            .. characters.Select(c => new MangaCharacter { MangaId = manga.Id, CharacterId = c.Id, Character = c })
+        ];
 
         return manga;
     }
@@ -150,6 +174,70 @@ public class MangaRepositoryUnitTests
     }
 
     [Fact]
+    public async Task GetAllAsync_LoadsCharacters()
+    {
+        var options = CreateOptions();
+
+        var kaguya = CreateCharacter("Kaguya");
+
+        var miyuki = CreateCharacter("Miyuki");
+
+        await SeedAsync(options, CreateMangaWithCharacters("Kaguya-sama", 8.88m, kaguya, miyuki));
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new MangaRepository(context);
+
+        var result = await repository.GetAllAsync();
+
+        var manga = Assert.Single(result);
+
+        Assert.Equivalent((string[])["Kaguya", "Miyuki"], manga.MangaCharacters.Select(mc => mc.Character.Name));
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ReturnsEmptyCharacters_WhenMangaHasNoCharacters()
+    {
+        var options = CreateOptions();
+
+        await SeedAsync(options, CreateManga("Yotsuba to!", 8.92m));
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new MangaRepository(context);
+
+        var result = await repository.GetAllAsync();
+
+        Assert.Empty(Assert.Single(result).MangaCharacters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_LoadsOnlyOwnCharactersForEachManga()
+    {
+        var options = CreateOptions();
+
+        var punpun = CreateCharacter("Punpun");
+
+        var yotsuba = CreateCharacter("Yotsuba");
+
+        await SeedAsync(
+            options,
+            CreateMangaWithCharacters("Oyasumi Punpun", 8.97m, punpun),
+            CreateMangaWithCharacters("Yotsuba to!", 8.92m, yotsuba)
+        );
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new MangaRepository(context);
+
+        var result = await repository.GetAllAsync();
+
+        Assert.Equal(["Punpun"], result[0].MangaCharacters.Select(mc => mc.Character.Name));
+
+        Assert.Equal(["Yotsuba"], result[1].MangaCharacters.Select(mc => mc.Character.Name));
+    }
+
+    [Fact]
     public async Task GetByIdAsync_ReturnsNull()
     {
         await using var context = new AppDbContext(CreateOptions());
@@ -223,5 +311,49 @@ public class MangaRepositoryUnitTests
         Assert.NotNull(result);
 
         Assert.Empty(result.MangaGenres);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_LoadsCharacters()
+    {
+        var options = CreateOptions();
+
+        var musashi = CreateCharacter("Musashi");
+
+        var matahachi = CreateCharacter("Matahachi");
+
+        var manga = CreateMangaWithCharacters("Vagabond", 9.27m, musashi, matahachi);
+
+        await SeedAsync(options, manga);
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new MangaRepository(context);
+
+        var result = await repository.GetByIdAsync(manga.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Equivalent((string[])["Musashi", "Matahachi"], result.MangaCharacters.Select(mc => mc.Character.Name));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsEmptyCharacters_WhenMangaHasNoCharacters()
+    {
+        var options = CreateOptions();
+
+        var manga = CreateManga("Yotsuba to!", 8.92m);
+
+        await SeedAsync(options, manga);
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new MangaRepository(context);
+
+        var result = await repository.GetByIdAsync(manga.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.MangaCharacters);
     }
 }

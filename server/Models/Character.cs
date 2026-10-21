@@ -25,4 +25,6 @@ public class Character
     public string? ImageSource { get; set; }
 
     public ICollection<AnimeCharacter> AnimeCharacters { get; set; } = new List<AnimeCharacter>();
+
+    public ICollection<MangaCharacter> MangaCharacters { get; set; } = new List<MangaCharacter>();
 }

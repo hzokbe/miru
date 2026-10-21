@@ -254,6 +254,23 @@ namespace Miru.Migrations
                     b.ToTable("Mangas");
                 });
 
+            modelBuilder.Entity("Miru.Models.MangaCharacter", b =>
+                {
+                    b.Property<Guid>("MangaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("manga_id");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("character_id");
+
+                    b.HasKey("MangaId", "CharacterId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("MangaCharacters");
+                });
+
             modelBuilder.Entity("Miru.Models.MangaGenre", b =>
                 {
                     b.Property<Guid>("MangaId")
@@ -309,6 +326,25 @@ namespace Miru.Migrations
                     b.Navigation("Genre");
                 });
 
+            modelBuilder.Entity("Miru.Models.MangaCharacter", b =>
+                {
+                    b.HasOne("Miru.Models.Character", "Character")
+                        .WithMany("MangaCharacters")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Miru.Models.Manga", "Manga")
+                        .WithMany("MangaCharacters")
+                        .HasForeignKey("MangaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Manga");
+                });
+
             modelBuilder.Entity("Miru.Models.MangaGenre", b =>
                 {
                     b.HasOne("Miru.Models.Genre", "Genre")
@@ -338,6 +374,8 @@ namespace Miru.Migrations
             modelBuilder.Entity("Miru.Models.Character", b =>
                 {
                     b.Navigation("AnimeCharacters");
+
+                    b.Navigation("MangaCharacters");
                 });
 
             modelBuilder.Entity("Miru.Models.Genre", b =>
@@ -349,6 +387,8 @@ namespace Miru.Migrations
 
             modelBuilder.Entity("Miru.Models.Manga", b =>
                 {
+                    b.Navigation("MangaCharacters");
+
                     b.Navigation("MangaGenres");
                 });
 #pragma warning restore 612, 618

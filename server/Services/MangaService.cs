@@ -32,7 +32,8 @@ public class MangaService(IMangaRepository repository) : IMangaService
             manga.PublishedTo,
             manga.Score,
             manga.ImageSource,
-            [.. manga.MangaGenres.Select(mg => ToResponse(mg.Genre))]
+            [.. manga.MangaGenres.Select(mg => ToResponse(mg.Genre))],
+            [.. manga.MangaCharacters.Select(mc => ToResponse(mc.Character))]
         );
     }
 
@@ -42,6 +43,22 @@ public class MangaService(IMangaRepository repository) : IMangaService
             genre.Id,
             genre.Name,
             genre.Description
+        );
+    }
+
+    private static CharacterResponse ToResponse(Character character)
+    {
+        return new CharacterResponse(
+            character.Id,
+            character.Name,
+            character.LastName,
+            character.JapaneseName,
+            character.JapaneseLastName,
+            character.Age,
+            character.Gender,
+            character.Role,
+            character.Description,
+            character.ImageSource
         );
     }
 }

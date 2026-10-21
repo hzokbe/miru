@@ -19,6 +19,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<AnimeCharacter> AnimeCharacters => Set<AnimeCharacter>();
 
+    public DbSet<MangaCharacter> MangaCharacters => Set<MangaCharacter>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

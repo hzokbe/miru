@@ -14,5 +14,6 @@ public record MangaResponse(
     DateOnly? PublishedTo,
     decimal? Score,
     string? ImageSource,
-    List<GenreResponse> Genres
+    List<GenreResponse> Genres,
+    List<CharacterResponse> Characters
 );
