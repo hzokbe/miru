@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+.app-background {
+  background: linear-gradient(
+    to bottom right,
+    var(--ui-color-neutral-50),
+    var(--ui-color-neutral-100),
+    var(--ui-color-neutral-200)
+  );
+}
+
+.dark .app-background {
+  background: linear-gradient(
+    to bottom right,
+    var(--ui-color-neutral-950),
+    var(--ui-color-neutral-900),
+    var(--ui-color-neutral-800)
+  );
+}
+
+.app-header-background {
+  background: linear-gradient(
+    to right,
+    var(--ui-color-neutral-50),
+    var(--ui-color-neutral-100),
+    var(--ui-color-neutral-200)
+  );
+}
+
+.dark .app-header-background {
+  background: linear-gradient(
+    to right,
+    var(--ui-color-neutral-950),
+    var(--ui-color-neutral-900),
+    var(--ui-color-neutral-800)
+  );
+}

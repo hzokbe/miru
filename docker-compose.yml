@@ -1,0 +1,49 @@
+services:
+  db:
+    container_name: miru-db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-miru}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-miru}
+      POSTGRES_DB: ${DB_DATABASE:-miru}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME:-miru}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    image: postgres:18-alpine
+    networks:
+      - miru
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - db:/var/lib/postgresql
+  server:
+    build: ./server
+    container_name: miru-server
+    networks:
+      - miru
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Host=db;Port=5432;Database=${DB_DATABASE:-miru};Username=${DB_USERNAME:-miru};Password=${DB_PASSWORD:-miru}
+    expose:
+      - "8080"
+  client:
+    build: ./client
+    container_name: miru-client
+    networks:
+      - miru
+    depends_on:
+      - server
+    ports:
+      - "3000:3000"
+    environment:
+      NUXT_API_INTERNAL_URL: http://miru-server:8080
+      NUXT_PUBLIC_APP_URL: http://localhost:3000
+networks:
+  miru:
+    name: miru
+volumes:
+  db:
