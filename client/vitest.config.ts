@@ -9,6 +9,7 @@ export default defineConfig({
           name: { label: 'unit', color: 'green' },
           include: ['test/unit/**/*.test.ts'],
           environment: 'nuxt',
+          setupFiles: ['./test/setup.ts'],
         },
       }),
       await defineVitestProject({
@@ -16,6 +17,7 @@ export default defineConfig({
           name: { label: 'integration', color: 'blue' },
           include: ['test/integration/**/*.test.ts'],
           environment: 'nuxt',
+          setupFiles: ['./test/setup.ts'],
         },
       }),
       {
