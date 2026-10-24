@@ -12,7 +12,9 @@ namespace Miru.Tests.Support;
 
 public class MiruFactory : WebApplicationFactory<Program>
 {
-    public IAnimeRepository Repository { get; } = Substitute.For<IAnimeRepository>();
+    public IAnimeRepository AnimeRepository { get; } = Substitute.For<IAnimeRepository>();
+
+    public IMangaRepository MangaRepository { get; } = Substitute.For<IMangaRepository>();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -28,7 +30,11 @@ public class MiruFactory : WebApplicationFactory<Program>
 
             services.RemoveAll<IAnimeRepository>();
 
-            services.AddSingleton(Repository);
+            services.AddSingleton(AnimeRepository);
+
+            services.RemoveAll<IMangaRepository>();
+
+            services.AddSingleton(MangaRepository);
         });
     }
 

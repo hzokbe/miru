@@ -1,3 +1,8 @@
+<script lang="ts" setup>
+import { formatScore, formatStatus } from '~/utils/utils.ts';
+import { formatEpisodes, formatType } from '~/utils/anime-utils.ts';
+</script>
+
 <template>
   <AppCardSkeleton
     :badges="[

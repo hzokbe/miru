@@ -22,4 +22,13 @@ public sealed class InMemoryDatabaseFixture
 
         await context.SaveChangesAsync();
     }
+
+    public async Task SeedAsync(IEnumerable<Manga> mangas)
+    {
+        await using var context = CreateContext();
+
+        context.Mangas.AddRange(mangas);
+
+        await context.SaveChangesAsync();
+    }
 }

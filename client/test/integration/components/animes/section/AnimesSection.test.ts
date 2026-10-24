@@ -1,7 +1,9 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AnimeCard, AnimeCardSkeleton, AnimesSection } from '#components';
+import { AnimeSection, AnimeSectionSkeleton, AppPageCard } from '#components';
 import { animeFixtures } from '~~/test/fixtures/animes.ts';
+import { formatScore, formatStatus } from '~/utils/utils.ts';
+import { formatEpisodes, formatType } from '~/utils/anime-utils.ts';
 
 const { apiMock } = vi.hoisted(() => ({
   apiMock: vi.fn(),
@@ -9,122 +11,118 @@ const { apiMock } = vi.hoisted(() => ({
 
 mockNuxtImport('useAPI', () => () => apiMock);
 
+mockNuxtImport('useRoute', () => () => ({
+  params: { id: 'a3f1c8e2-5b7d-4e9a-8c34-2d6f91b0e7a5' },
+}));
+
 describe('AnimesSection integration', () => {
   beforeEach(() => {
     apiMock.mockReset();
 
-    clearNuxtData('animes-all');
+    clearNuxtData();
   });
 
-  it('shows skeletons while loading and cards after the response', async () => {
-    let resolve!: (value: typeof animeFixtures) => void;
+  it('shows the skeleton while loading and the card after the response', async () => {
+    let resolve!: (value: (typeof animeFixtures)[number]) => void;
 
     apiMock.mockReturnValue(
-      new Promise<typeof animeFixtures>((r) => {
+      new Promise<(typeof animeFixtures)[number]>((r) => {
         resolve = r;
       }),
     );
 
-    const wrapper = await mountSuspended(AnimesSection);
+    const wrapper = await mountSuspended(AnimeSection);
 
-    expect(wrapper.findAllComponents(AnimeCardSkeleton)).toHaveLength(9);
+    expect(wrapper.findComponent(AnimeSectionSkeleton).exists()).toBe(true);
 
-    expect(wrapper.findAllComponents(AnimeCard)).toHaveLength(0);
+    expect(wrapper.findComponent(AppPageCard).exists()).toBe(false);
 
-    resolve(animeFixtures);
-
-    await vi.waitFor(() =>
-      expect(wrapper.findAllComponents(AnimeCard)).toHaveLength(
-        animeFixtures.length,
-      ),
-    );
-
-    expect(wrapper.findAllComponents(AnimeCardSkeleton)).toHaveLength(0);
-
-    expect(apiMock).toHaveBeenCalledWith('/animes');
-  });
-
-  it('renders titles and formatted badges from the API data', async () => {
-    apiMock.mockResolvedValue(animeFixtures);
-
-    const wrapper = await mountSuspended(AnimesSection);
+    resolve(animeFixtures[0]!);
 
     await vi.waitFor(() =>
-      expect(wrapper.findAllComponents(AnimeCard)).toHaveLength(
-        animeFixtures.length,
-      ),
+      expect(wrapper.findComponent(AppPageCard).exists()).toBe(true),
     );
 
-    const [first] = animeFixtures;
+    expect(wrapper.findComponent(AnimeSectionSkeleton).exists()).toBe(false);
 
-    const card = wrapper.findAllComponents(AnimeCard)[0]!;
-
-    expect(card.text()).toContain(first!.title);
-
-    expect(card.find('[data-testid="anime-score"]').text()).toBe(
-      formatScore(first!.score),
-    );
-
-    expect(card.find('[data-testid="anime-type"]').text()).toBe(
-      formatType(first!.type),
-    );
-
-    expect(card.find('[data-testid="anime-episodes"]').text()).toBe(
-      formatEpisodes(first!.episodes),
-    );
-
-    expect(card.find('[data-testid="anime-status"]').text()).toBe(
-      formatStatus(first!.status),
+    expect(apiMock).toHaveBeenCalledWith(
+      '/animes/a3f1c8e2-5b7d-4e9a-8c34-2d6f91b0e7a5',
     );
   });
 
-  it('navigates to the clicked anime page', async () => {
-    apiMock.mockResolvedValue(animeFixtures);
+  it('renders title, synopsis and formatted badges from the API data', async () => {
+    const anime = animeFixtures[0]!;
 
-    const wrapper = await mountSuspended(AnimesSection);
+    apiMock.mockResolvedValue(anime);
+
+    const wrapper = await mountSuspended(AnimeSection);
 
     await vi.waitFor(() =>
-      expect(wrapper.findAllComponents(AnimeCard)).toHaveLength(
-        animeFixtures.length,
-      ),
+      expect(wrapper.findComponent(AppPageCard).exists()).toBe(true),
     );
 
-    const target = animeFixtures[3]!;
+    expect(wrapper.text()).toContain(anime.title);
 
-    const card = wrapper.findAllComponents(AnimeCard)[3]!;
+    expect(wrapper.text()).toContain(anime.synopsis ?? 'No synopsis');
 
-    await card.find('h3').trigger('click');
+    expect(wrapper.find('[data-testid="anime-score"]').text()).toBe(
+      formatScore(anime.score),
+    );
 
-    expect(card.find('a').attributes('href')).toBe(`/animes/${target.id}`);
+    expect(wrapper.find('[data-testid="anime-episodes"]').text()).toBe(
+      formatEpisodes(anime.episodes),
+    );
+
+    expect(wrapper.find('[data-testid="anime-status"]').text()).toBe(
+      formatStatus(anime.status),
+    );
+
+    expect(wrapper.find('[data-testid="anime-type"]').text()).toBe(
+      formatType(anime.type),
+    );
+
+    expect(wrapper.find('[data-testid="anime-aired"]').exists()).toBe(true);
   });
 
-  it('shows the empty alert when the API returns no animes', async () => {
-    apiMock.mockResolvedValue([]);
+  it('renders the fallback description when the anime has no synopsis', async () => {
+    apiMock.mockResolvedValue({ ...animeFixtures[0]!, synopsis: null });
 
-    const wrapper = await mountSuspended(AnimesSection);
+    const wrapper = await mountSuspended(AnimeSection);
 
-    await vi.waitFor(() => expect(wrapper.text()).toContain('No anime found'));
+    await vi.waitFor(() =>
+      expect(wrapper.findComponent(AppPageCard).exists()).toBe(true),
+    );
 
-    expect(wrapper.findAllComponents(AnimeCard)).toHaveLength(0);
+    expect(wrapper.text()).toContain('No synopsis');
+  });
 
-    expect(wrapper.findAllComponents(AnimeCardSkeleton)).toHaveLength(0);
+  it('shows the not found alert when the API returns no anime', async () => {
+    apiMock.mockResolvedValue(null);
+
+    const wrapper = await mountSuspended(AnimeSection);
+
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Anime not found'));
+
+    expect(wrapper.findComponent(AppPageCard).exists()).toBe(false);
+
+    expect(wrapper.findComponent(AnimeSectionSkeleton).exists()).toBe(false);
   });
 
   it('shows the error alert when the API fails', async () => {
     apiMock.mockRejectedValue(new Error('request failed'));
 
-    const wrapper = await mountSuspended(AnimesSection);
+    const wrapper = await mountSuspended(AnimeSection);
 
     await vi.waitFor(() =>
       expect(wrapper.text()).toContain(
-        'Something went wrong while loading the anime list.',
+        'Something went wrong while loading the anime details. Please try again.',
       ),
     );
 
-    expect(wrapper.text()).not.toContain('No anime found');
+    expect(wrapper.text()).not.toContain('Anime not found');
 
-    expect(wrapper.findAllComponents(AnimeCard)).toHaveLength(0);
+    expect(wrapper.findComponent(AppPageCard).exists()).toBe(false);
 
-    expect(wrapper.findAllComponents(AnimeCardSkeleton)).toHaveLength(0);
+    expect(wrapper.findComponent(AnimeSectionSkeleton).exists()).toBe(false);
   });
 });

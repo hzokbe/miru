@@ -59,4 +59,32 @@ public class AnimeRepositoryUnitTests
 
         Assert.Empty(context.ChangeTracker.Entries());
     }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeDoesNotExist_ReturnsNull()
+    {
+        await _database.SeedAsync(AnimeSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).GetByIdAsync(Guid.NewGuid());
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeExists_ReturnsMatchingAnime()
+    {
+        var animes = AnimeSamples.CreateAll();
+
+        await _database.SeedAsync(animes);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).GetByIdAsync(animes[0].Id);
+
+        Assert.NotNull(result);
+
+        AnimeAssert.Matches(animes[0], result);
+    }
 }

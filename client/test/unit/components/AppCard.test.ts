@@ -1,6 +1,8 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { describe, expect, it } from 'vitest';
 import { AppCard } from '#components';
+import { formatScore, formatStatus } from '~/utils/utils.ts';
+import { formatEpisodes, formatType } from '~/utils/anime-utils.ts';
 
 const badges: Badge[] = [
   {

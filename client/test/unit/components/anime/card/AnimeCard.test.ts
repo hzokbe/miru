@@ -1,6 +1,8 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { describe, expect, it } from 'vitest';
 import { AnimeCard } from '#components';
+import { formatScore, formatStatus } from '~/utils/utils.ts';
+import { formatEpisodes, formatType } from '~/utils/anime-utils.ts';
 
 const props = {
   id: 'a3f1c8e2-5b7d-4e9a-8c34-2d6f91b0e7a5',

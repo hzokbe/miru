@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Miru.Data.Seeding;
 using Miru.DTO;
+using Miru.Models;
 using Miru.Tests.Support;
 using NSubstitute;
 
@@ -24,7 +25,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     {
         _factory = factory;
 
-        _factory.Repository.ClearReceivedCalls();
+        _factory.AnimeRepository.ClearReceivedCalls();
 
         _client = factory.CreateSecureClient();
     }
@@ -34,7 +35,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     {
         var animes = AnimeSamples.CreateAll();
 
-        _factory.Repository.GetAllAsync().Returns(animes);
+        _factory.AnimeRepository.GetAllAsync().Returns(animes);
 
         var response = await _client.GetAsync("/animes");
 
@@ -52,7 +53,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     [Fact]
     public async Task GetAllAsync_WhenRepositoryReturnsEmpty_ReturnsOkWithEmptyList()
     {
-        _factory.Repository.GetAllAsync().Returns([]);
+        _factory.AnimeRepository.GetAllAsync().Returns([]);
 
         var response = await _client.GetAsync("/animes");
 
@@ -68,7 +69,7 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     [Fact]
     public async Task GetAllAsync_ReturnsJsonContentType()
     {
-        _factory.Repository.GetAllAsync().Returns([]);
+        _factory.AnimeRepository.GetAllAsync().Returns([]);
 
         var response = await _client.GetAsync("/animes");
 
@@ -78,11 +79,11 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     [Fact]
     public async Task GetAllAsync_CallsRepositoryOnce()
     {
-        _factory.Repository.GetAllAsync().Returns([]);
+        _factory.AnimeRepository.GetAllAsync().Returns([]);
 
         await _client.GetAsync("/animes");
 
-        await _factory.Repository.Received(1).GetAllAsync();
+        await _factory.AnimeRepository.Received(1).GetAllAsync();
     }
 
     [Fact]
@@ -90,12 +91,60 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
     {
         var anime = AnimeSamples.CreateAll()[0];
 
-        _factory.Repository.GetAllAsync().Returns([anime]);
+        _factory.AnimeRepository.GetAllAsync().Returns([anime]);
 
         var body = await _client.GetFromJsonAsync<List<AnimeResponse>>("/animes", JsonOptions);
 
         Assert.NotNull(body);
 
         AnimeAssert.Matches(anime, Assert.Single(body));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeExists_ReturnsOkWithAnime()
+    {
+        var anime = AnimeSamples.CreateAll()[0];
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var response = await _client.GetAsync($"/animes/{anime.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<AnimeResponse>(JsonOptions);
+
+        Assert.NotNull(body);
+
+        AnimeAssert.Matches(anime, body);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeDoesNotExist_ReturnsNotFound()
+    {
+        _factory.AnimeRepository.GetByIdAsync(Arg.Any<Guid>()).Returns((Anime?)null);
+
+        var response = await _client.GetAsync($"/animes/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenIdIsNotAGuid_ReturnsNotFound()
+    {
+        var response = await _client.GetAsync("/animes/not-a-guid");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsRepositoryOnceWithGivenId()
+    {
+        var id = Guid.NewGuid();
+
+        _factory.AnimeRepository.GetByIdAsync(id).Returns((Anime?)null);
+
+        await _client.GetAsync($"/animes/{id}");
+
+        await _factory.AnimeRepository.Received(1).GetByIdAsync(id);
     }
 }

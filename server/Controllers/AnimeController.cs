@@ -13,4 +13,12 @@ public class AnimeController(IAnimeService service) : ControllerBase
     {
         return Ok(await service.GetAllAsync());
     }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetByIdAsync(Guid id)
+    {
+        var anime = await service.GetByIdAsync(id);
+
+        return anime != null ? Ok(anime) : NotFound();
+    }
 }

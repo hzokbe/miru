@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { formatScore, formatStatus } from '~/utils/utils.ts';
+import { formatEpisodes, formatType } from '~/utils/anime-utils.ts';
+
 export interface AnimeCardProps {
   id: string;
 

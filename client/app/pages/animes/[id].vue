@@ -1,18 +1,14 @@
 <script lang="ts" setup>
+const route = useRoute();
+
+const { anime } = useAnime(route.params.id as string);
+
 useSeoMeta({
-  title: 'Coming Soon',
-  description: 'This page is not implemented yet.',
+  title: () => anime.value?.title ?? 'Anime Details',
+  description: () => anime.value?.synopsis ?? 'Anime details.',
 });
 </script>
 
 <template>
-  <div class="flex flex-1 items-center justify-center w-full">
-    <UAlert
-      class="max-w-fit"
-      color="warning"
-      icon="i-lucide-construction"
-      title="Page not implemented yet"
-      variant="subtle"
-    />
-  </div>
+  <AnimeSection :anime="anime" />
 </template>

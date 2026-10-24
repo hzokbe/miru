@@ -16,6 +16,12 @@ const items = computed<NavigationMenuItem[]>(() => [
     icon: 'i-lucide-clapperboard',
     active: route.path.endsWith('/animes'),
   },
+  {
+    label: 'Mangas',
+    to: '/mangas',
+    icon: 'i-lucide-book',
+    active: route.path.endsWith('/mangas'),
+  },
 ]);
 
 const transition = {

@@ -25,7 +25,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     {
         var animes = context.Set<Anime>();
 
+        var mangas = context.Set<Manga>();
+
         if (!animes.Any()) animes.AddRange(AnimeSamples.CreateAll());
+
+        if (!mangas.Any()) mangas.AddRange(MangaSamples.CreateAll());
 
         context.SaveChanges();
     });
@@ -34,7 +38,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     {
         var animes = context.Set<Anime>();
 
+        var mangas = context.Set<Manga>();
+
         if (!await animes.AnyAsync(cancellationToken)) animes.AddRange(AnimeSamples.CreateAll());
+
+        if (!await mangas.AnyAsync(cancellationToken)) mangas.AddRange(MangaSamples.CreateAll());
 
         await context.SaveChangesAsync(cancellationToken);
     });
@@ -54,6 +62,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddScoped<IAnimeRepository, AnimeRepository>();
 
 builder.Services.AddScoped<IAnimeService, AnimeService>();
+
+builder.Services.AddScoped<IMangaRepository, MangaRepository>();
+
+builder.Services.AddScoped<IMangaService, MangaService>();
 
 var app = builder.Build();
 

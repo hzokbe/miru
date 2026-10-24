@@ -14,4 +14,9 @@ public class AnimeRepository(AppDbContext context) : IAnimeRepository
             .OrderByDescending(a => a.Score)
             .ToListAsync();
     }
+
+    public async Task<Anime?> GetByIdAsync(Guid id)
+    {
+        return await context.Animes.FirstOrDefaultAsync(a => a.Id == id);
+    }
 }
