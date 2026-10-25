@@ -13,4 +13,12 @@ public class MangaController(IMangaService service) : ControllerBase
     {
         return Ok(await service.GetAllAsync());
     }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetByIdAsync(Guid id)
+    {
+        var manga = await service.GetByIdAsync(id);
+
+        return manga != null ? Ok(manga) : NotFound();
+    }
 }

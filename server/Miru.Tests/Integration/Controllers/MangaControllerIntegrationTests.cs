@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Miru.Data.Seeding;
 using Miru.DTO;
+using Miru.Models;
 using Miru.Tests.Support;
 using NSubstitute;
 
@@ -111,5 +112,53 @@ public class MangaControllerIntegrationTests : IClassFixture<MiruFactory>
         Assert.NotNull(body);
 
         MangaAssert.Matches(manga, Assert.Single(body));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaExists_ReturnsOkWithManga()
+    {
+        var manga = MangaSamples.CreateAll()[0];
+
+        _factory.MangaRepository.GetByIdAsync(manga.Id).Returns(manga);
+
+        var response = await _client.GetAsync($"/mangas/{manga.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<MangaResponse>(JsonOptions);
+
+        Assert.NotNull(body);
+
+        MangaAssert.Matches(manga, body);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaDoesNotExist_ReturnsNotFound()
+    {
+        _factory.MangaRepository.GetByIdAsync(Arg.Any<Guid>()).Returns((Manga?)null);
+
+        var response = await _client.GetAsync($"/mangas/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenIdIsNotAGuid_ReturnsNotFound()
+    {
+        var response = await _client.GetAsync("/mangas/not-a-guid");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsRepositoryOnceWithGivenId()
+    {
+        var id = Guid.NewGuid();
+
+        _factory.MangaRepository.GetByIdAsync(id).Returns((Manga?)null);
+
+        await _client.GetAsync($"/mangas/{id}");
+
+        await _factory.MangaRepository.Received(1).GetByIdAsync(id);
     }
 }

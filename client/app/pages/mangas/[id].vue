@@ -1,18 +1,14 @@
 <script lang="ts" setup>
+const route = useRoute();
+
+const { manga } = useManga(route.params.id as string);
+
 useSeoMeta({
-  title: 'Coming Soon',
-  description: 'This page is not implemented yet.',
+  title: () => manga.value?.title ?? 'Manga Details',
+  description: () => manga.value?.synopsis ?? 'Manga details.',
 });
 </script>
 
 <template>
-  <div class="flex flex-1 items-center justify-center w-full">
-    <UAlert
-      class="max-w-fit"
-      color="warning"
-      icon="i-lucide-construction"
-      title="Page not implemented yet"
-      variant="subtle"
-    />
-  </div>
+  <MangaSection />
 </template>

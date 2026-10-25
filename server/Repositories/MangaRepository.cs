@@ -14,4 +14,9 @@ public class MangaRepository(AppDbContext context) : IMangaRepository
             .OrderByDescending(m => m.Score)
             .ToListAsync();
     }
+
+    public async Task<Manga?> GetByIdAsync(Guid id)
+    {
+        return await context.Mangas.FirstOrDefaultAsync(m => m.Id == id);
+    }
 }

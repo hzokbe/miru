@@ -59,4 +59,32 @@ public class MangaRepositoryUnitTests
 
         Assert.Empty(context.ChangeTracker.Entries());
     }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaDoesNotExist_ReturnsNull()
+    {
+        await _database.SeedAsync(MangaSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        var result = await new MangaRepository(context).GetByIdAsync(Guid.NewGuid());
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaExists_ReturnsMatchingManga()
+    {
+        var mangas = MangaSamples.CreateAll();
+
+        await _database.SeedAsync(mangas);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new MangaRepository(context).GetByIdAsync(mangas[0].Id);
+
+        Assert.NotNull(result);
+
+        MangaAssert.Matches(mangas[0], result);
+    }
 }

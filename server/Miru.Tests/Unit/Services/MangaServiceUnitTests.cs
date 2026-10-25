@@ -1,4 +1,5 @@
 using Miru.Data.Seeding;
+using Miru.Models;
 using Miru.Repositories;
 using Miru.Services;
 using Miru.Tests.Support;
@@ -75,5 +76,41 @@ public class MangaServiceUnitTests
         await _service.GetAllAsync();
 
         _repository.Verify(r => r.GetAllAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenRepositoryReturnsNull_ReturnsNull()
+    {
+        _repository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Manga?)null);
+
+        var result = await _service.GetByIdAsync(Guid.NewGuid());
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsAllFieldsCorrectly()
+    {
+        var manga = MangaSamples.CreateAll()[0];
+
+        _repository.Setup(r => r.GetByIdAsync(manga.Id)).ReturnsAsync(manga);
+
+        var result = await _service.GetByIdAsync(manga.Id);
+
+        Assert.NotNull(result);
+
+        MangaAssert.Matches(manga, result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsRepositoryOnceWithGivenId()
+    {
+        var id = Guid.NewGuid();
+
+        _repository.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Manga?)null);
+
+        await _service.GetByIdAsync(id);
+
+        _repository.Verify(r => r.GetByIdAsync(id), Times.Once);
     }
 }

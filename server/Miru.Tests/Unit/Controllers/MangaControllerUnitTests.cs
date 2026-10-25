@@ -58,4 +58,44 @@ public class MangaControllerUnitTests
 
         _service.Verify(s => s.GetAllAsync(), Times.Once);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenServiceReturnsManga_ReturnsOkWithManga()
+    {
+        var manga = MangaResponseFactory.From(MangaSamples.CreateAll()[0]);
+
+        _service.Setup(s => s.GetByIdAsync(manga.Id)).ReturnsAsync(manga);
+
+        var result = await _controller.GetByIdAsync(manga.Id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        Assert.Equal(200, ok.StatusCode);
+
+        Assert.Same(manga, ok.Value);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenServiceReturnsNull_ReturnsNotFound()
+    {
+        _service.Setup(s => s.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((MangaResponse?)null);
+
+        var result = await _controller.GetByIdAsync(Guid.NewGuid());
+
+        var notFound = Assert.IsType<NotFoundResult>(result);
+
+        Assert.Equal(404, notFound.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_CallsServiceOnceWithGivenId()
+    {
+        var id = Guid.NewGuid();
+
+        _service.Setup(s => s.GetByIdAsync(id)).ReturnsAsync((MangaResponse?)null);
+
+        await _controller.GetByIdAsync(id);
+
+        _service.Verify(s => s.GetByIdAsync(id), Times.Once);
+    }
 }
