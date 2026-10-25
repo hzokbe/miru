@@ -18,7 +18,8 @@ public static class AnimeResponseFactory
             anime.AiredFrom,
             anime.AiredTo,
             anime.Score,
-            anime.ImageSource
+            anime.ImageSource,
+            [.. anime.AnimeCharacters.Select(ac => CharacterResponseFactory.ToResponse(ac.Character))]
         );
     }
 }

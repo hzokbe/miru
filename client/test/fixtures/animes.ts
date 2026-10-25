@@ -15,6 +15,8 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2019-03-30',
     score: 8.4,
     imageSource: null,
+
+    characters: [],
   },
   {
     id: '7c2e94d1-0a8b-4f63-b5d9-e1473a82c60f',
@@ -29,6 +31,7 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2020-06-27',
     score: 8.61,
     imageSource: null,
+    characters: [],
   },
   {
     id: 'e5b80a37-9d14-4c2f-a7e6-48f3d0b1952c',
@@ -43,6 +46,7 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2022-06-25',
     score: 8.95,
     imageSource: null,
+    characters: [],
   },
   {
     id: '2d9f6b14-c3a7-48e5-9b0d-71a5e8c43f96',
@@ -57,6 +61,7 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2024-03-22',
     score: 9.24,
     imageSource: null,
+    characters: [],
   },
   {
     id: '94a7d0e8-61bc-4f2a-8d35-b0c9172e5a4d',
@@ -71,6 +76,7 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2026-03-27',
     score: 8.84,
     imageSource: null,
+    characters: [],
   },
   {
     id: '0f3c5a92-e8d6-4b71-a249-5c86b3d7e1f0',
@@ -85,6 +91,7 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2011-09-14',
     score: 9.07,
     imageSource: null,
+    characters: [],
   },
   {
     id: 'b61e47c3-2fa9-4d08-9e5b-a3d70c8f2146',
@@ -99,6 +106,7 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2018-09-27',
     score: 8.56,
     imageSource: null,
+    characters: [],
   },
   {
     id: '5e8a2d70-b4c1-49f6-86a3-d92f0e17b5c8',
@@ -113,6 +121,7 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2010-07-04',
     score: 9.11,
     imageSource: null,
+    characters: [],
   },
   {
     id: 'c1d93f56-7a2e-4b84-a0f7-36e5b8d1294a',
@@ -127,6 +136,7 @@ export const animeFixtures: AnimeResponse[] = [
     airedTo: '2022-12-28',
     score: 8.41,
     imageSource: null,
+    characters: [],
   },
 ];
 

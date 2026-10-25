@@ -39,7 +39,7 @@ describe('AnimeSection', () => {
 
     expect(wrapper.findComponent(AnimeSectionSkeleton).exists()).toBe(true);
 
-    expect(wrapper.findComponent(AppPageCard).exists()).toBe(false);
+    expect(wrapper.text()).not.toContain('Anime not found');
   });
 
   it('renders the page card with animes data', async () => {

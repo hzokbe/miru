@@ -87,4 +87,89 @@ public class AnimeRepositoryUnitTests
 
         AnimeAssert.Matches(animes[0], result);
     }
+
+    [Fact]
+    public async Task GetAllAsync_IncludesCharactersOfEachAnime()
+    {
+        var animes = AnimeSamples.CreateAll();
+
+        var characters = CharacterSamples.CreateAll();
+
+        var links = AnimeCharacterSamples.CreateAll(animes, characters);
+
+        await _database.SeedAsync(animes);
+
+        await using (var seedContext = _database.CreateContext())
+        {
+            seedContext.AddRange(characters);
+
+            seedContext.AddRange(links);
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).GetAllAsync();
+
+        foreach (var anime in result)
+        {
+            var expected = links.Where(l => l.AnimeId == anime.Id).Select(l => l.CharacterId);
+
+            Assert.Equal(expected.Order(), anime.AnimeCharacters.Select(ac => ac.CharacterId).Order());
+
+            Assert.All(anime.AnimeCharacters, ac => Assert.NotNull(ac.Character));
+        }
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_IncludesCharacters()
+    {
+        var animes = AnimeSamples.CreateAll();
+
+        var characters = CharacterSamples.CreateAll();
+
+        var links = AnimeCharacterSamples.CreateAll(animes, characters);
+
+        var target = animes.First(a => links.Any(l => l.AnimeId == a.Id));
+
+        await _database.SeedAsync(animes);
+
+        await using (var seedContext = _database.CreateContext())
+        {
+            seedContext.AddRange(characters);
+
+            seedContext.AddRange(links);
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).GetByIdAsync(target.Id);
+
+        Assert.NotNull(result);
+
+        var expected = links.Where(l => l.AnimeId == target.Id).Select(l => l.CharacterId);
+
+        Assert.Equal(expected.Order(), result.AnimeCharacters.Select(ac => ac.CharacterId).Order());
+
+        Assert.All(result.AnimeCharacters, ac => Assert.NotNull(ac.Character));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoCharacters_ReturnsEmptyAnimeCharacters()
+    {
+        var animes = AnimeSamples.CreateAll();
+
+        await _database.SeedAsync(animes);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).GetByIdAsync(animes[0].Id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.AnimeCharacters);
+    }
 }

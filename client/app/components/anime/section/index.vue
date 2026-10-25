@@ -67,12 +67,14 @@ const badges = computed<Badge[]>(() => {
       title="Anime not found"
       variant="subtle"
     />
-    <AppPageCard
-      v-else
-      :badges="badges"
-      :description="anime.synopsis ?? 'No synopsis'"
-      :image="{ alt: anime.title, src: anime.imageSource }"
-      :title="anime.title"
-    />
+    <template v-else>
+      <AppPageCard
+        :badges="badges"
+        :description="anime.synopsis ?? 'No synopsis'"
+        :image="{ alt: anime.title, src: anime.imageSource }"
+        :title="anime.title"
+      />
+      <CharactersSection :characters="anime.characters" />
+    </template>
   </AppSection>
 </template>

@@ -1,4 +1,5 @@
 using Miru.Data.Seeding;
+using Miru.DTO;
 using Miru.Models;
 using Miru.Repositories;
 using Miru.Services;
@@ -16,6 +17,11 @@ public class AnimeServiceUnitTests
     public AnimeServiceUnitTests()
     {
         _service = new AnimeService(_repository.Object);
+    }
+
+    private static List<CharacterResponse> ExpectedResponses(IEnumerable<Character> characters)
+    {
+        return [.. characters.Select(CharacterResponseFactory.ToResponse)];
     }
 
     [Fact]
@@ -96,5 +102,49 @@ public class AnimeServiceUnitTests
         await _service.GetByIdAsync(id);
 
         _repository.Verify(r => r.GetByIdAsync(id), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsCharacters()
+    {
+        var characters = CharacterSamples.CreateAll().Take(3).ToList();
+
+        var anime = AnimeCharacterLinker.WithCharacters(AnimeSamples.CreateAll()[0], characters);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([anime]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Equal(ExpectedResponses(characters), Assert.Single(result).Characters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenAnimeHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var anime = AnimeSamples.CreateAll()[0];
+
+        anime.AnimeCharacters = [];
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([anime]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Empty(Assert.Single(result).Characters);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsCharacters()
+    {
+        var characters = CharacterSamples.CreateAll().Take(3).ToList();
+
+        var anime = AnimeCharacterLinker.WithCharacters(AnimeSamples.CreateAll()[0], characters);
+
+        _repository.Setup(r => r.GetByIdAsync(anime.Id)).ReturnsAsync(anime);
+
+        var result = await _service.GetByIdAsync(anime.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(ExpectedResponses(characters), result.Characters);
     }
 }

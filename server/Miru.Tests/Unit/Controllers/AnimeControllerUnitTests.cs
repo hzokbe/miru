@@ -98,4 +98,24 @@ public class AnimeControllerUnitTests
 
         _service.Verify(s => s.GetByIdAsync(id), Times.Once);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsAnimeWithCharacters()
+    {
+        var characters = CharacterSamples.CreateAll().Take(2).ToList();
+
+        var model = AnimeCharacterLinker.WithCharacters(AnimeSamples.CreateAll()[0], characters);
+
+        var anime = AnimeResponseFactory.From(model);
+
+        _service.Setup(s => s.GetByIdAsync(anime.Id)).ReturnsAsync(anime);
+
+        var result = await _controller.GetByIdAsync(anime.Id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        var value = Assert.IsType<AnimeResponse>(ok.Value);
+
+        Assert.Equal(2, value.Characters.Count);
+    }
 }

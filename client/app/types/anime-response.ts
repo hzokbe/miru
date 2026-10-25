@@ -33,4 +33,6 @@ export interface AnimeResponse {
   score: number | null;
 
   imageSource: string | null;
+
+  characters: CharacterResponse[];
 }

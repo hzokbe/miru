@@ -27,9 +27,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
         var mangas = context.Set<Manga>();
 
+        var characters = context.Set<Character>();
+
+        var animeCharacters = context.Set<AnimeCharacter>();
+
         if (!animes.Any()) animes.AddRange(AnimeSamples.CreateAll());
 
         if (!mangas.Any()) mangas.AddRange(MangaSamples.CreateAll());
+
+        if (!characters.Any()) characters.AddRange(CharacterSamples.CreateAll());
+
+        context.SaveChanges();
+
+        if (!animeCharacters.Any())
+            animeCharacters.AddRange(AnimeCharacterSamples.CreateAll([.. animes], [.. characters]));
 
         context.SaveChanges();
     });
@@ -40,9 +51,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
         var mangas = context.Set<Manga>();
 
+        var characters = context.Set<Character>();
+
+        var animeCharacters = context.Set<AnimeCharacter>();
+
         if (!await animes.AnyAsync(cancellationToken)) animes.AddRange(AnimeSamples.CreateAll());
 
         if (!await mangas.AnyAsync(cancellationToken)) mangas.AddRange(MangaSamples.CreateAll());
+
+        if (!await characters.AnyAsync(cancellationToken)) characters.AddRange(CharacterSamples.CreateAll());
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        if (!await animeCharacters.AnyAsync(cancellationToken))
+            animeCharacters.AddRange(AnimeCharacterSamples.CreateAll([.. animes], [.. characters]));
 
         await context.SaveChangesAsync(cancellationToken);
     });

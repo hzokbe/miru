@@ -31,7 +31,24 @@ public class AnimeService(IAnimeRepository repository) : IAnimeService
             anime.AiredFrom,
             anime.AiredTo,
             anime.Score,
-            anime.ImageSource
+            anime.ImageSource,
+            [.. anime.AnimeCharacters.Select(ac => ToResponse(ac.Character))]
+        );
+    }
+
+    private static CharacterResponse ToResponse(Character character)
+    {
+        return new CharacterResponse(
+            character.Id,
+            character.Name,
+            character.LastName,
+            character.JapaneseName,
+            character.JapaneseLastName,
+            character.Age,
+            character.Gender,
+            character.Role,
+            character.Description,
+            character.ImageSource
         );
     }
 }

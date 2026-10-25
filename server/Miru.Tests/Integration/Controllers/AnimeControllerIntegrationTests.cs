@@ -147,4 +147,58 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
 
         await _factory.AnimeRepository.Received(1).GetByIdAsync(id);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsCharactersOfAnime()
+    {
+        var characters = CharacterSamples.CreateAll().Take(3).ToList();
+
+        var anime = AnimeCharacterLinker.WithCharacters(AnimeSamples.CreateAll()[0], characters);
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>($"/animes/{anime.Id}", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(characters.Select(c => c.Id), body.Characters.Select(c => c.Id));
+
+        Assert.Equal(characters.Select(c => c.Name), body.Characters.Select(c => c.Name));
+
+        Assert.Equal(characters.Select(c => c.Gender), body.Characters.Select(c => c.Gender));
+
+        Assert.Equal(characters.Select(c => c.Role), body.Characters.Select(c => c.Role));
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ReturnsCharactersForEachAnime()
+    {
+        var characters = CharacterSamples.CreateAll().Take(2).ToList();
+
+        var anime = AnimeCharacterLinker.WithCharacters(AnimeSamples.CreateAll()[0], characters);
+
+        _factory.AnimeRepository.GetAllAsync().Returns([anime]);
+
+        var body = await _client.GetFromJsonAsync<List<AnimeResponse>>("/animes", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(characters.Select(c => c.Id), Assert.Single(body).Characters.Select(c => c.Id));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var anime = AnimeSamples.CreateAll()[0];
+
+        anime.AnimeCharacters = [];
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>($"/animes/{anime.Id}", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Empty(body.Characters);
+    }
 }
