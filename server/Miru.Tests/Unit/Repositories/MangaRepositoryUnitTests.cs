@@ -87,4 +87,78 @@ public class MangaRepositoryUnitTests
 
         MangaAssert.Matches(mangas[0], result);
     }
+
+    [Fact]
+    public async Task GetAllAsync_IncludesCharacters()
+    {
+        var characters = CharacterSamples.CreateAll().Take(3).ToList();
+
+        var manga = MangaCharacterLinker.WithCharacters(MangaSamples.CreateAll()[0], characters);
+
+        await _database.SeedAsync([manga]);
+
+        await using var context = _database.CreateContext();
+
+        var result = Assert.Single(await new MangaRepository(context).GetAllAsync());
+
+        Assert.Equal(
+            characters.Select(c => c.Id).Order(),
+            result.MangaCharacters.Select(mc => mc.Character.Id).Order()
+        );
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenMangaHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var manga = MangaSamples.CreateAll()[0];
+
+        manga.MangaCharacters = [];
+
+        await _database.SeedAsync([manga]);
+
+        await using var context = _database.CreateContext();
+
+        var result = Assert.Single(await new MangaRepository(context).GetAllAsync());
+
+        Assert.Empty(result.MangaCharacters);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_IncludesCharacters()
+    {
+        var characters = CharacterSamples.CreateAll().Take(3).ToList();
+
+        var manga = MangaCharacterLinker.WithCharacters(MangaSamples.CreateAll()[0], characters);
+
+        await _database.SeedAsync([manga]);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new MangaRepository(context).GetByIdAsync(manga.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(
+            characters.Select(c => c.Id).Order(),
+            result.MangaCharacters.Select(mc => mc.Character.Id).Order()
+        );
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var manga = MangaSamples.CreateAll()[0];
+
+        manga.MangaCharacters = [];
+
+        await _database.SeedAsync([manga]);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new MangaRepository(context).GetByIdAsync(manga.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.MangaCharacters);
+    }
 }

@@ -998,6 +998,286 @@ public class CharacterSamples
                 Role = CharacterRole.Supporting,
                 Description =
                     "A human-devil hybrid fused with the Katana Devil, who joins the Gun Devil's side to avenge his grandfather's death at Denji's hands."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Yotsuba",
+                LastName = "Koiwai",
+                JapaneseName = "四葉",
+                JapaneseLastName = "小岩井",
+                Age = "5",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Main,
+                Description =
+                    "A green-haired, endlessly curious little girl who turns every ordinary thing, from doorbells to cicadas, into a grand adventure."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Yousuke",
+                LastName = "Koiwai",
+                JapaneseName = "葉介",
+                JapaneseLastName = "小岩井",
+                Gender = CharacterGender.Male,
+                Role = CharacterRole.Main,
+                Description =
+                    "Yotsuba's easygoing adoptive father, a work-from-home translator who is a bit lazy but sincerely tries to be a good parent."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Fuuka",
+                LastName = "Ayase",
+                JapaneseName = "風香",
+                JapaneseLastName = "綾瀬",
+                Age = "16",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Main,
+                Description =
+                    "The responsible middle Ayase sister, often flustered by her family's quirks and fond of terrible puns and odd graphic shirts."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Asagi",
+                LastName = "Ayase",
+                JapaneseName = "あさぎ",
+                JapaneseLastName = "綾瀬",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Supporting,
+                Description =
+                    "The eldest Ayase sister, a university student with a teasing streak who is the best at handling Yotsuba."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Takashi",
+                LastName = "Takeda",
+                JapaneseName = "隆",
+                JapaneseLastName = "竹田",
+                Gender = CharacterGender.Male,
+                Role = CharacterRole.Supporting,
+                Description =
+                    "Known as Jumbo, a towering, deadpan florist and old classmate of Koiwai who is clumsy around women and treated like family by Yotsuba."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Musashi",
+                LastName = "Miyamoto",
+                JapaneseName = "武蔵",
+                JapaneseLastName = "宮本",
+                Gender = CharacterGender.Male,
+                Role = CharacterRole.Main,
+                Description =
+                    "Once a feared wild boy named Takezo, he wanders feudal Japan with a sword in hand, driven to become the strongest swordsman alive."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Kojirou",
+                LastName = "Sasaki",
+                JapaneseName = "小次郎",
+                JapaneseLastName = "佐々木",
+                Gender = CharacterGender.Male,
+                Role = CharacterRole.Main,
+                Description =
+                    "A deaf, mute and playful swordsman with uncanny reflexes, destined to become Musashi's greatest rival."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Matahachi",
+                LastName = "Honiden",
+                JapaneseName = "又八",
+                JapaneseLastName = "本位田",
+                Gender = CharacterGender.Male,
+                Role = CharacterRole.Main,
+                Description =
+                    "Musashi's pleasure-seeking childhood friend, who takes on another man's name and grows bitter and envious as their paths diverge."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Kaoruko",
+                LastName = "Waguri",
+                JapaneseName = "薫子",
+                JapaneseLastName = "和栗",
+                Age = "16",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Main,
+                Description =
+                    "A small, kind and sweet-loving scholarship student at Kikyo who sees past reputations and falls for a gentle boy from the rival school."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Rintarou",
+                LastName = "Tsumugi",
+                JapaneseName = "凛太郎",
+                JapaneseLastName = "紬",
+                Age = "16",
+                Gender = CharacterGender.Male,
+                Role = CharacterRole.Main,
+                Description =
+                    "A tall, tired-looking student from Chidori who is mistaken for a delinquent but is kind-hearted and helps out at his family's bakery."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Subaru",
+                LastName = "Hoshina",
+                JapaneseName = "昴",
+                JapaneseLastName = "保科",
+                Age = "16",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Supporting,
+                Description =
+                    "Kaoruko's silver-haired, protective childhood friend, wary of boys at first but won over once she sees their kindness."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Madoka",
+                LastName = "Yuzuhara",
+                JapaneseName = "まどか",
+                JapaneseLastName = "柚原",
+                Age = "17",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Supporting,
+                Description =
+                    "A bespectacled, game-loving classmate of Kaoruko who is indifferent to the feud between the two schools."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Punpun",
+                LastName = "Onodera",
+                JapaneseName = "プンプン",
+                JapaneseLastName = "小野寺",
+                Gender = CharacterGender.Male,
+                Role = CharacterRole.Main,
+                Description =
+                    "An awkward boy drawn as a simple bird doodle, who stumbles through crushes, school and family troubles while searching for his place in the world."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Aiko",
+                LastName = "Tanaka",
+                JapaneseName = "愛子",
+                JapaneseLastName = "田中",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Main,
+                Description =
+                    "An eccentric girl who becomes Punpun's first love and remains tied to his life for years."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Sachi",
+                LastName = "Nanjou",
+                JapaneseName = "幸",
+                JapaneseLastName = "南条",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Supporting,
+                Description =
+                    "An aspiring manga artist with blunt, realistic opinions who is often mistaken for rude and becomes an important friend to Punpun."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Masumi",
+                LastName = "Seki",
+                JapaneseName = "真澄",
+                JapaneseLastName = "関",
+                Gender = CharacterGender.Male,
+                Role = CharacterRole.Supporting,
+                Description =
+                    "One of Punpun's childhood friends, a rough and cool-faced boy from a family that runs a lunch shop."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Chito",
+                JapaneseName = "チト",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Main,
+                Description =
+                    "A cautious, bookish girl who travels the ruined world with Yuuri, always curious about its history and the people who came before."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Yuuri",
+                JapaneseName = "ユーリ",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Main,
+                Description =
+                    "Chito's cheerful, resourceful and perpetually hungry companion, who keeps their spirits up in an empty, silent world."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Nuko",
+                JapaneseName = "ヌコ",
+                Role = CharacterRole.Supporting,
+                Description =
+                    "A strange pale creature that joins Chito and Yuuri on their trip and can change shape and communicate through radio signals."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Ishii",
+                JapaneseName = "イシイ",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Supporting,
+                Description =
+                    "A bespectacled engineer who repairs the girls' vehicle and asks for help building an aircraft in return."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Shijima",
+                LastName = "Tsukishima",
+                JapaneseName = "しじま",
+                JapaneseLastName = "月島",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Main,
+                Description =
+                    "A pessimistic girl who spent two years shut in her room and now enters high school with shimeji mushrooms growing from her head."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Majime",
+                LastName = "Yamashita",
+                JapaneseName = "まじめ",
+                JapaneseLastName = "山下",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Main,
+                Description =
+                    "Shijima's cheerful, carefree classmate, as unserious as her name suggests, with a sunny-side-up egg on her head."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Shijima's Older Sister",
+                JapaneseName = "しじまの姉",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Supporting,
+                Description =
+                    "A university dropout who looks after Shijima like a parent while pursuing her own research into how reality works."
+            },
+            new Character
+            {
+                Id = Guid.NewGuid(),
+                Name = "Mogawa-sensei",
+                JapaneseName = "もがわ先生",
+                Gender = CharacterGender.Female,
+                Role = CharacterRole.Supporting,
+                Description = "The teacher who advises the hole digging club."
             }
         ];
     }

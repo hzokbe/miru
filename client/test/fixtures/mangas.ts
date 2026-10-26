@@ -14,6 +14,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: '2015-05-21',
     score: 9.27,
     imageSource: null,
+    characters: [],
   },
   {
     id: '7c2e94d1-0a8b-4f63-b5d9-e1473a82c60f',
@@ -28,6 +29,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: null,
     score: 8.92,
     imageSource: null,
+    characters: [],
   },
   {
     id: 'e5b80a37-9d14-4c2f-a7e6-48f3d0b1952c',
@@ -42,6 +44,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: '2022-11-02',
     score: 8.88,
     imageSource: null,
+    characters: [],
   },
   {
     id: '2d9f6b14-c3a7-48e5-9b0d-71a5e8c43f96',
@@ -56,6 +59,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: null,
     score: 8.76,
     imageSource: null,
+    characters: [],
   },
   {
     id: '94a7d0e8-61bc-4f2a-8d35-b0c9172e5a4d',
@@ -70,6 +74,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: '2025-10-15',
     score: 8.87,
     imageSource: null,
+    characters: [],
   },
   {
     id: '0f3c5a92-e8d6-4b71-a249-5c86b3d7e1f0',
@@ -84,6 +89,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: '2013-11-02',
     score: 8.97,
     imageSource: null,
+    characters: [],
   },
   {
     id: 'fc87799a-6562-400d-b230-3eeb01a66262',
@@ -98,6 +104,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: '2018-01-12',
     score: 8.75,
     imageSource: null,
+    characters: [],
   },
   {
     id: '579ab4b4-82c7-485b-bbf4-e4f334897f5f',
@@ -112,6 +119,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: '2026-03-25',
     score: 8.61,
     imageSource: null,
+    characters: [],
   },
   {
     id: '46850b03-eefd-4c70-a284-a287b64a6f89',
@@ -126,6 +134,7 @@ export const mangaFixtures: MangaResponse[] = [
     publishedTo: '2023-11-27',
     score: 8.55,
     imageSource: null,
+    characters: [],
   },
 ];
 

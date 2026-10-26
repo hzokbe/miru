@@ -23,4 +23,6 @@ export interface MangaResponse {
   score: number | null;
 
   imageSource: string | null;
+
+  characters: CharacterResponse[];
 }

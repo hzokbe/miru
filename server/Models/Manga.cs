@@ -25,4 +25,6 @@ public class Manga
     public decimal? Score { get; set; }
 
     public string? ImageSource { get; set; } = string.Empty;
+
+    public ICollection<MangaCharacter> MangaCharacters { get; set; } = new List<MangaCharacter>();
 }

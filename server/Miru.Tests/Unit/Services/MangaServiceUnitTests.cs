@@ -113,4 +113,98 @@ public class MangaServiceUnitTests
 
         _repository.Verify(r => r.GetByIdAsync(id), Times.Once);
     }
+
+    [Fact]
+    public async Task GetAllAsync_MapsCharactersCorrectly()
+    {
+        var characters = CharacterSamples.CreateAll().Take(3).ToList();
+
+        var manga = MangaCharacterLinker.WithCharacters(MangaSamples.CreateAll()[0], characters);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([manga]);
+
+        var result = Assert.Single(await _service.GetAllAsync());
+
+        Assert.Equal(characters.Select(c => c.Id), result.Characters.Select(c => c.Id));
+
+        Assert.Equal(characters.Select(c => c.Name), result.Characters.Select(c => c.Name));
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsAllCharacterFieldsCorrectly()
+    {
+        var character = CharacterSamples.CreateAll()[0];
+
+        var manga = MangaCharacterLinker.WithCharacters(MangaSamples.CreateAll()[0], [character]);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([manga]);
+
+        var result = Assert.Single(Assert.Single(await _service.GetAllAsync()).Characters);
+
+        Assert.Equal(character.Id, result.Id);
+
+        Assert.Equal(character.Name, result.Name);
+
+        Assert.Equal(character.LastName, result.LastName);
+
+        Assert.Equal(character.JapaneseName, result.JapaneseName);
+
+        Assert.Equal(character.JapaneseLastName, result.JapaneseLastName);
+
+        Assert.Equal(character.Age, result.Age);
+
+        Assert.Equal(character.Gender, result.Gender);
+
+        Assert.Equal(character.Role, result.Role);
+
+        Assert.Equal(character.Description, result.Description);
+
+        Assert.Equal(character.ImageSource, result.ImageSource);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenMangaHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var manga = MangaSamples.CreateAll()[0];
+
+        manga.MangaCharacters = [];
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([manga]);
+
+        var result = Assert.Single(await _service.GetAllAsync());
+
+        Assert.Empty(result.Characters);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsCharactersCorrectly()
+    {
+        var characters = CharacterSamples.CreateAll().Take(3).ToList();
+
+        var manga = MangaCharacterLinker.WithCharacters(MangaSamples.CreateAll()[0], characters);
+
+        _repository.Setup(r => r.GetByIdAsync(manga.Id)).ReturnsAsync(manga);
+
+        var result = await _service.GetByIdAsync(manga.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(characters.Select(c => c.Id), result.Characters.Select(c => c.Id));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var manga = MangaSamples.CreateAll()[0];
+
+        manga.MangaCharacters = [];
+
+        _repository.Setup(r => r.GetByIdAsync(manga.Id)).ReturnsAsync(manga);
+
+        var result = await _service.GetByIdAsync(manga.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.Characters);
+    }
 }

@@ -70,12 +70,15 @@ const badges = computed<Badge[]>(() => {
       title="Manga not found"
       variant="subtle"
     />
-    <AppPageCard
-      v-else
-      :badges="badges"
-      :description="manga.synopsis ?? 'No synopsis'"
-      :image="{ alt: manga.title, src: manga.imageSource }"
-      :title="manga.title"
-    />
+
+    <template v-else>
+      <AppPageCard
+        :badges="badges"
+        :description="manga.synopsis ?? 'No synopsis'"
+        :image="{ alt: manga.title, src: manga.imageSource }"
+        :title="manga.title"
+      />
+      <CharactersSection :characters="manga.characters" />
+    </template>
   </AppSection>
 </template>

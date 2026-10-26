@@ -31,7 +31,24 @@ public class MangaService(IMangaRepository repository) : IMangaService
             manga.PublishedFrom,
             manga.PublishedTo,
             manga.Score,
-            manga.ImageSource
+            manga.ImageSource,
+            [.. manga.MangaCharacters.Select(mc => ToResponse(mc.Character))]
+        );
+    }
+
+    private static CharacterResponse ToResponse(Character character)
+    {
+        return new CharacterResponse(
+            character.Id,
+            character.Name,
+            character.LastName,
+            character.JapaneseName,
+            character.JapaneseLastName,
+            character.Age,
+            character.Gender,
+            character.Role,
+            character.Description,
+            character.ImageSource
         );
     }
 }

@@ -161,4 +161,58 @@ public class MangaControllerIntegrationTests : IClassFixture<MiruFactory>
 
         await _factory.MangaRepository.Received(1).GetByIdAsync(id);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsCharactersOfManga()
+    {
+        var characters = CharacterSamples.CreateAll().Take(3).ToList();
+
+        var manga = MangaCharacterLinker.WithCharacters(MangaSamples.CreateAll()[0], characters);
+
+        _factory.MangaRepository.GetByIdAsync(manga.Id).Returns(manga);
+
+        var body = await _client.GetFromJsonAsync<MangaResponse>($"/mangas/{manga.Id}", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(characters.Select(c => c.Id), body.Characters.Select(c => c.Id));
+
+        Assert.Equal(characters.Select(c => c.Name), body.Characters.Select(c => c.Name));
+
+        Assert.Equal(characters.Select(c => c.Gender), body.Characters.Select(c => c.Gender));
+
+        Assert.Equal(characters.Select(c => c.Role), body.Characters.Select(c => c.Role));
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ReturnsCharactersForEachManga()
+    {
+        var characters = CharacterSamples.CreateAll().Take(2).ToList();
+
+        var manga = MangaCharacterLinker.WithCharacters(MangaSamples.CreateAll()[0], characters);
+
+        _factory.MangaRepository.GetAllAsync().Returns([manga]);
+
+        var body = await _client.GetFromJsonAsync<List<MangaResponse>>("/mangas", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(characters.Select(c => c.Id), Assert.Single(body).Characters.Select(c => c.Id));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMangaHasNoCharacters_ReturnsEmptyCharacters()
+    {
+        var manga = MangaSamples.CreateAll()[0];
+
+        manga.MangaCharacters = [];
+
+        _factory.MangaRepository.GetByIdAsync(manga.Id).Returns(manga);
+
+        var body = await _client.GetFromJsonAsync<MangaResponse>($"/mangas/{manga.Id}", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Empty(body.Characters);
+    }
 }

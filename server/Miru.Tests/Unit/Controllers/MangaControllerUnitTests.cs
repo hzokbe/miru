@@ -98,4 +98,24 @@ public class MangaControllerUnitTests
 
         _service.Verify(s => s.GetByIdAsync(id), Times.Once);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsMangaWithCharacters()
+    {
+        var characters = CharacterSamples.CreateAll().Take(2).ToList();
+
+        var model = MangaCharacterLinker.WithCharacters(MangaSamples.CreateAll()[0], characters);
+
+        var manga = MangaResponseFactory.From(model);
+
+        _service.Setup(s => s.GetByIdAsync(manga.Id)).ReturnsAsync(manga);
+
+        var result = await _controller.GetByIdAsync(manga.Id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        var value = Assert.IsType<MangaResponse>(ok.Value);
+
+        Assert.Equal(2, value.Characters.Count);
+    }
 }
