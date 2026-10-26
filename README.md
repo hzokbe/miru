@@ -3,6 +3,8 @@
 Miru é um aplicativo para acompanhar os animes e mangás que você assiste e lê, com listas personalizadas, notas e
 descoberta de novos títulos.
 
+![Miru Demo](assets/miru.gif)
+
 ## Tecnologias
 
 - **Frontend:** Nuxt.js
