@@ -37,7 +37,7 @@ const transition = {
       'fixed w-full': route.path == '/',
       'app-header-background': true,
     }"
-    :ui="{ title: 'items-center gap-2' }"
+    :ui="{ title: 'items-center gap-2', right: 'flex-1' }"
   >
     <template #title>
       <Motion
@@ -64,7 +64,9 @@ const transition = {
         :animate="{ opacity: 1 }"
         :initial="introPlayed ? false : { opacity: 0 }"
         :transition="transition"
+        class="flex items-center gap-2 w-full justify-end"
       >
+        <SearchDrawer />
         <UColorModeButton />
       </Motion>
     </template>

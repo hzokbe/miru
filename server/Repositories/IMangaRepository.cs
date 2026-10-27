@@ -7,4 +7,6 @@ public interface IMangaRepository
     public Task<List<Manga>> GetAllAsync();
 
     public Task<Manga?> GetByIdAsync(Guid id);
+
+    public Task<List<Manga>> SearchAsync(string query);
 }

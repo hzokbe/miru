@@ -21,7 +21,7 @@ public class AnimeServiceUnitTests
 
     private static List<CharacterResponse> ExpectedResponses(IEnumerable<Character> characters)
     {
-        return [.. characters.Select(CharacterResponseFactory.ToResponse)];
+        return [.. characters.Select(CharacterResponseFactory.From)];
     }
 
     [Fact]

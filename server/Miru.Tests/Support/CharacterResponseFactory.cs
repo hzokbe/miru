@@ -5,7 +5,7 @@ namespace Miru.Tests.Support;
 
 public static class CharacterResponseFactory
 {
-    public static CharacterResponse ToResponse(Character character)
+    public static CharacterResponse From(Character character)
     {
         return new CharacterResponse(
             character.Id,

@@ -161,4 +161,67 @@ public class MangaRepositoryUnitTests
 
         Assert.Empty(result.MangaCharacters);
     }
+
+    [Fact]
+    public async Task SearchAsync_WhenNothingMatches_ReturnsEmptyList()
+    {
+        await _database.SeedAsync(MangaSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        var result = await new MangaRepository(context).SearchAsync("zzzzzz");
+
+        Assert.Empty(result);
+    }
+
+    [Theory]
+    [InlineData("vagabond")]
+    [InlineData("CHAINSAW")]
+    [InlineData("sousou")]
+    [InlineData("kaguya")]
+    public async Task SearchAsync_ReturnsOnlyMatchingMangasIgnoringCase(string query)
+    {
+        var mangas = MangaSamples.CreateAll();
+
+        await _database.SeedAsync(mangas);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new MangaRepository(context).SearchAsync(query);
+
+        var expected = mangas
+            .Where(m => m.Title.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(m => m.Score)
+            .Select(m => m.Id);
+
+        Assert.NotEmpty(result);
+
+        Assert.Equal(expected, result.Select(m => m.Id));
+    }
+
+    [Fact]
+    public async Task SearchAsync_ReturnsMangasOrderedByScoreDescending()
+    {
+        await _database.SeedAsync(MangaSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        var result = await new MangaRepository(context).SearchAsync("o");
+
+        Assert.True(result.Count > 1);
+
+        Assert.Equal(result.OrderByDescending(m => m.Score).Select(m => m.Id), result.Select(m => m.Id));
+    }
+
+    [Fact]
+    public async Task SearchAsync_DoesNotTrackEntities()
+    {
+        await _database.SeedAsync(MangaSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        await new MangaRepository(context).SearchAsync("vagabond");
+
+        Assert.Empty(context.ChangeTracker.Entries());
+    }
 }

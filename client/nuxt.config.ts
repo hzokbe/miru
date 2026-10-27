@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
     'motion-v/nuxt',
+    '@vueuse/nuxt',
   ],
   css: ['~/assets/css/main.css'],
   ssr: true,

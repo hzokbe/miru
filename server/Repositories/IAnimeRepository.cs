@@ -7,4 +7,6 @@ public interface IAnimeRepository
     public Task<List<Anime>> GetAllAsync();
 
     public Task<Anime?> GetByIdAsync(Guid id);
+
+    public Task<List<Anime>> SearchAsync(string query);
 }

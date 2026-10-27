@@ -10,4 +10,15 @@ public class CharacterRepository(AppDbContext context) : ICharacterRepository
     {
         return await context.Characters.FirstOrDefaultAsync(c => c.Id == id);
     }
+
+    public async Task<List<Character>> SearchAsync(string query)
+    {
+        var term = query.ToLower();
+
+        return await context
+            .Characters
+            .AsNoTracking()
+            .Where(c => (c.Name + " " + (c.LastName ?? "")).ToLower().Contains(term))
+            .ToListAsync();
+    }
 }

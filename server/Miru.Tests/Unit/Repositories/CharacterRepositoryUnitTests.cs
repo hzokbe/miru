@@ -89,4 +89,64 @@ public class CharacterRepositoryUnitTests
 
         Assert.Equal(characters[^1].Id, result.Id);
     }
+
+    [Fact]
+    public async Task SearchAsync_WhenNothingMatches_ReturnsEmptyList()
+    {
+        await _database.SeedAsync(CharacterSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        var result = await new CharacterRepository(context).SearchAsync("zzzzzz");
+
+        Assert.Empty(result);
+    }
+
+    [Theory]
+    [InlineData("frieren")]
+    [InlineData("RINTAROU")]
+    [InlineData("edward")]
+    [InlineData("pun")]
+    public async Task SearchAsync_ReturnsOnlyMatchingCharactersIgnoringCase(string query)
+    {
+        var characters = CharacterSamples.CreateAll();
+
+        await _database.SeedAsync(characters);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new CharacterRepository(context).SearchAsync(query);
+
+        var expected = characters
+            .Where(c => c.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .Select(c => c.Id);
+
+        Assert.NotEmpty(result);
+
+        Assert.Equal(expected.Order(), result.Select(c => c.Id).Order());
+    }
+
+    [Fact]
+    public async Task SearchAsync_WhenNameIsShared_ReturnsAllCharactersWithThatName()
+    {
+        await _database.SeedAsync(CharacterSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        var result = await new CharacterRepository(context).SearchAsync("Rintarou");
+
+        Assert.Equal(2, result.Count);
+    }
+
+    [Fact]
+    public async Task SearchAsync_DoesNotTrackEntities()
+    {
+        await _database.SeedAsync(CharacterSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        await new CharacterRepository(context).SearchAsync("frieren");
+
+        Assert.Empty(context.ChangeTracker.Entries());
+    }
 }

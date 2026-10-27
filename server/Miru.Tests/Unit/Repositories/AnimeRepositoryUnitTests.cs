@@ -172,4 +172,67 @@ public class AnimeRepositoryUnitTests
 
         Assert.Empty(result.AnimeCharacters);
     }
+
+    [Fact]
+    public async Task SearchAsync_WhenNothingMatches_ReturnsEmptyList()
+    {
+        await _database.SeedAsync(AnimeSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).SearchAsync("zzzzzz");
+
+        Assert.Empty(result);
+    }
+
+    [Theory]
+    [InlineData("frieren")]
+    [InlineData("FRIEREN")]
+    [InlineData("Kaguya")]
+    [InlineData("steins")]
+    public async Task SearchAsync_ReturnsOnlyMatchingAnimesIgnoringCase(string query)
+    {
+        var animes = AnimeSamples.CreateAll();
+
+        await _database.SeedAsync(animes);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).SearchAsync(query);
+
+        var expected = animes
+            .Where(a => a.Title.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(a => a.Score)
+            .Select(a => a.Id);
+
+        Assert.NotEmpty(result);
+
+        Assert.Equal(expected, result.Select(a => a.Id));
+    }
+
+    [Fact]
+    public async Task SearchAsync_ReturnsAnimesOrderedByScoreDescending()
+    {
+        await _database.SeedAsync(AnimeSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).SearchAsync("kaguya");
+
+        Assert.Equal(3, result.Count);
+
+        Assert.Equal(result.OrderByDescending(a => a.Score).Select(a => a.Id), result.Select(a => a.Id));
+    }
+
+    [Fact]
+    public async Task SearchAsync_DoesNotTrackEntities()
+    {
+        await _database.SeedAsync(AnimeSamples.CreateAll());
+
+        await using var context = _database.CreateContext();
+
+        await new AnimeRepository(context).SearchAsync("frieren");
+
+        Assert.Empty(context.ChangeTracker.Entries());
+    }
 }

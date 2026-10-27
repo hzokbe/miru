@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@nuxt/ui": "^4.11.3",
+    "@vueuse/nuxt": "^15.0.0",
     "motion-v": "^2.8.0",
     "nuxt": "^4.6.1",
     "tailwindcss": "^4.3.3",

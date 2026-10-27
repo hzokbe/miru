@@ -31,4 +31,13 @@ public sealed class InMemoryDatabaseFixture
 
         await context.SaveChangesAsync();
     }
+
+    public async Task SeedAsync(IEnumerable<Character> characters)
+    {
+        await using var context = CreateContext();
+
+        context.Characters.AddRange(characters);
+
+        await context.SaveChangesAsync();
+    }
 }

@@ -69,7 +69,7 @@ public class CharacterServiceUnitTests
 
         var result = await _service.GetByIdAsync(character.Id);
 
-        Assert.Equal(CharacterResponseFactory.ToResponse(character), result);
+        Assert.Equal(CharacterResponseFactory.From(character), result);
     }
 
     [Fact]

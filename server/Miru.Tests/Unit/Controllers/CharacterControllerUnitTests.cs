@@ -22,7 +22,7 @@ public class CharacterControllerUnitTests
     [Fact]
     public async Task GetByIdAsync_WhenServiceReturnsCharacter_ReturnsOkWithCharacter()
     {
-        var character = CharacterResponseFactory.ToResponse(CharacterSamples.CreateAll()[0]);
+        var character = CharacterResponseFactory.From(CharacterSamples.CreateAll()[0]);
 
         _service.Setup(s => s.GetByIdAsync(character.Id)).ReturnsAsync(character);
 

@@ -103,6 +103,8 @@ builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 
+builder.Services.AddScoped<ISearchService, SearchService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsEnvironment("Testing"))

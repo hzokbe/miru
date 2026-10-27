@@ -31,4 +31,14 @@ public class AnimeRepository(AppDbContext context) : IAnimeRepository
             .ThenInclude(ac => ac.Character)
             .FirstOrDefaultAsync(a => a.Id == id);
     }
+
+    public async Task<List<Anime>> SearchAsync(string query)
+    {
+        return await context
+            .Animes
+            .AsNoTracking()
+            .Where(a => a.Title.ToLower().Contains(query.ToLower()))
+            .OrderByDescending(a => a.Score)
+            .ToListAsync();
+    }
 }
