@@ -99,6 +99,10 @@ builder.Services.AddScoped<IMangaRepository, MangaRepository>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
 
+builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
+
+builder.Services.AddScoped<ICharacterService, CharacterService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsEnvironment("Testing"))

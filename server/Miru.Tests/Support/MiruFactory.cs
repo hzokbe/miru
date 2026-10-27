@@ -16,6 +16,8 @@ public class MiruFactory : WebApplicationFactory<Program>
 
     public IMangaRepository MangaRepository { get; } = Substitute.For<IMangaRepository>();
 
+    public ICharacterRepository CharacterRepository { get; } = Substitute.For<ICharacterRepository>();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -35,6 +37,10 @@ public class MiruFactory : WebApplicationFactory<Program>
             services.RemoveAll<IMangaRepository>();
 
             services.AddSingleton(MangaRepository);
+
+            services.RemoveAll<ICharacterRepository>();
+
+            services.AddSingleton(CharacterRepository);
         });
     }
 
