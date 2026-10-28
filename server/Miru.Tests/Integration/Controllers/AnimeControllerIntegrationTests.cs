@@ -201,4 +201,56 @@ public class AnimeControllerIntegrationTests : IClassFixture<MiruFactory>
 
         Assert.Empty(body.Characters);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsGenresOfAnime()
+    {
+        var genres = GenreSamples.CreateAll().Take(3).ToList();
+
+        var anime = AnimeGenreLinker.WithGenres(AnimeSamples.CreateAll()[0], genres);
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>($"/animes/{anime.Id}", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(genres.Select(g => g.Id), body.Genres.Select(g => g.Id));
+
+        Assert.Equal(genres.Select(g => g.Name), body.Genres.Select(g => g.Name));
+
+        Assert.Equal(genres.Select(g => g.Description), body.Genres.Select(g => g.Description));
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ReturnsGenresForEachAnime()
+    {
+        var genres = GenreSamples.CreateAll().Take(2).ToList();
+
+        var anime = AnimeGenreLinker.WithGenres(AnimeSamples.CreateAll()[0], genres);
+
+        _factory.AnimeRepository.GetAllAsync().Returns([anime]);
+
+        var body = await _client.GetFromJsonAsync<List<AnimeResponse>>("/animes", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Equal(genres.Select(g => g.Id), Assert.Single(body).Genres.Select(g => g.Id));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoGenres_ReturnsEmptyGenres()
+    {
+        var anime = AnimeSamples.CreateAll()[0];
+
+        anime.AnimeGenres = [];
+
+        _factory.AnimeRepository.GetByIdAsync(anime.Id).Returns(anime);
+
+        var body = await _client.GetFromJsonAsync<AnimeResponse>($"/animes/{anime.Id}", JsonOptions);
+
+        Assert.NotNull(body);
+
+        Assert.Empty(body.Genres);
+    }
 }

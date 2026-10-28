@@ -130,4 +130,24 @@ describe('AnimeSection', () => {
 
     expect(wrapper.findComponent(AppPageCard).exists()).toBe(false);
   });
+
+  it('renders one badge per genre', async () => {
+    const anime = animeFixtures[0]!;
+
+    const wrapper = await mountSuspended(AnimeSection);
+
+    const genres = wrapper.findAll('[data-testid="anime-genre"]');
+
+    expect(genres.map((genre) => genre.text())).toEqual(
+      anime.genres.map((genre) => genre.name),
+    );
+  });
+
+  it('renders no genre badges when the anime has no genres', async () => {
+    state.anime = { ...animeFixtures[0]!, genres: [] };
+
+    const wrapper = await mountSuspended(AnimeSection);
+
+    expect(wrapper.findAll('[data-testid="anime-genre"]')).toHaveLength(0);
+  });
 });

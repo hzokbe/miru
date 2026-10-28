@@ -235,4 +235,89 @@ public class AnimeRepositoryUnitTests
 
         Assert.Empty(context.ChangeTracker.Entries());
     }
+
+    [Fact]
+    public async Task GetAllAsync_IncludesGenresOfEachAnime()
+    {
+        var animes = AnimeSamples.CreateAll();
+
+        var genres = GenreSamples.CreateAll();
+
+        var links = AnimeGenreSamples.CreateAll(animes, genres);
+
+        await _database.SeedAsync(animes);
+
+        await using (var seedContext = _database.CreateContext())
+        {
+            seedContext.AddRange(genres);
+
+            seedContext.AddRange(links);
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).GetAllAsync();
+
+        foreach (var anime in result)
+        {
+            var expected = links.Where(l => l.AnimeId == anime.Id).Select(l => l.GenreId);
+
+            Assert.Equal(expected.Order(), anime.AnimeGenres.Select(ag => ag.GenreId).Order());
+
+            Assert.All(anime.AnimeGenres, ag => Assert.NotNull(ag.Genre));
+        }
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_IncludesGenres()
+    {
+        var animes = AnimeSamples.CreateAll();
+
+        var genres = GenreSamples.CreateAll();
+
+        var links = AnimeGenreSamples.CreateAll(animes, genres);
+
+        var target = animes.First(a => links.Any(l => l.AnimeId == a.Id));
+
+        await _database.SeedAsync(animes);
+
+        await using (var seedContext = _database.CreateContext())
+        {
+            seedContext.AddRange(genres);
+
+            seedContext.AddRange(links);
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).GetByIdAsync(target.Id);
+
+        Assert.NotNull(result);
+
+        var expected = links.Where(l => l.AnimeId == target.Id).Select(l => l.GenreId);
+
+        Assert.Equal(expected.Order(), result.AnimeGenres.Select(ag => ag.GenreId).Order());
+
+        Assert.All(result.AnimeGenres, ag => Assert.NotNull(ag.Genre));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoGenres_ReturnsEmptyAnimeGenres()
+    {
+        var animes = AnimeSamples.CreateAll();
+
+        await _database.SeedAsync(animes);
+
+        await using var context = _database.CreateContext();
+
+        var result = await new AnimeRepository(context).GetByIdAsync(animes[0].Id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.AnimeGenres);
+    }
 }

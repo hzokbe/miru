@@ -118,4 +118,24 @@ public class AnimeControllerUnitTests
 
         Assert.Equal(2, value.Characters.Count);
     }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsAnimeWithGenres()
+    {
+        var genres = GenreSamples.CreateAll().Take(2).ToList();
+
+        var model = AnimeGenreLinker.WithGenres(AnimeSamples.CreateAll()[0], genres);
+
+        var anime = AnimeResponseFactory.From(model);
+
+        _service.Setup(s => s.GetByIdAsync(anime.Id)).ReturnsAsync(anime);
+
+        var result = await _controller.GetByIdAsync(anime.Id);
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+
+        var value = Assert.IsType<AnimeResponse>(ok.Value);
+
+        Assert.Equal(2, value.Genres.Count);
+    }
 }

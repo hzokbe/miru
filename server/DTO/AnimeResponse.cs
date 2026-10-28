@@ -14,5 +14,6 @@ public record AnimeResponse(
     DateOnly? AiredTo,
     decimal? Score,
     string? ImageSource,
-    List<CharacterResponse> Characters
+    List<CharacterResponse> Characters,
+    List<GenreResponse> Genres
 );

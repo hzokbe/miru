@@ -24,6 +24,12 @@ public class AnimeServiceUnitTests
         return [.. characters.Select(CharacterResponseFactory.From)];
     }
 
+
+    private static List<GenreResponse> ExpectedGenreResponses(IEnumerable<Genre> genres)
+    {
+        return [.. genres.Select(GenreResponseFactory.From)];
+    }
+
     [Fact]
     public async Task GetAllAsync_WhenRepositoryReturnsNoAnimes_ReturnsEmptyList()
     {
@@ -146,5 +152,65 @@ public class AnimeServiceUnitTests
         Assert.NotNull(result);
 
         Assert.Equal(ExpectedResponses(characters), result.Characters);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_MapsGenres()
+    {
+        var genres = GenreSamples.CreateAll().Take(3).ToList();
+
+        var anime = AnimeGenreLinker.WithGenres(AnimeSamples.CreateAll()[0], genres);
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([anime]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Equal(ExpectedGenreResponses(genres), Assert.Single(result).Genres);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_WhenAnimeHasNoGenres_ReturnsEmptyGenres()
+    {
+        var anime = AnimeSamples.CreateAll()[0];
+
+        anime.AnimeGenres = [];
+
+        _repository.Setup(r => r.GetAllAsync()).ReturnsAsync([anime]);
+
+        var result = await _service.GetAllAsync();
+
+        Assert.Empty(Assert.Single(result).Genres);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_MapsGenres()
+    {
+        var genres = GenreSamples.CreateAll().Take(3).ToList();
+
+        var anime = AnimeGenreLinker.WithGenres(AnimeSamples.CreateAll()[0], genres);
+
+        _repository.Setup(r => r.GetByIdAsync(anime.Id)).ReturnsAsync(anime);
+
+        var result = await _service.GetByIdAsync(anime.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Equal(ExpectedGenreResponses(genres), result.Genres);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenAnimeHasNoGenres_ReturnsEmptyGenres()
+    {
+        var anime = AnimeSamples.CreateAll()[0];
+
+        anime.AnimeGenres = [];
+
+        _repository.Setup(r => r.GetByIdAsync(anime.Id)).ReturnsAsync(anime);
+
+        var result = await _service.GetByIdAsync(anime.Id);
+
+        Assert.NotNull(result);
+
+        Assert.Empty(result.Genres);
     }
 }

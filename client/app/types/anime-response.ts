@@ -35,4 +35,6 @@ export interface AnimeResponse {
   imageSource: string | null;
 
   characters: CharacterResponse[];
+
+  genres: GenreResponse[];
 }

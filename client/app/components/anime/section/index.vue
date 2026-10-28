@@ -44,6 +44,12 @@ const badges = computed<Badge[]>(() => {
       color: 'neutral' as const,
       variant: 'outline' as const,
     },
+    ...anime.value.genres.map((genre): Badge => ({
+      id: 'anime-genre',
+      text: genre.name,
+      color: 'neutral',
+      icon: 'i-lucide-drama',
+    })),
   ];
 });
 </script>

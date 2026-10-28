@@ -70,6 +70,12 @@ describe('anime page', async () => {
 
     expect(await page.getByTestId('anime-aired').isVisible()).toBe(true);
 
+    const genres = await page.getByTestId('anime-genre').allInnerTexts();
+
+    expect(genres.map((genre) => genre.trim())).toEqual(
+      anime.genres.map((genre) => genre.name),
+    );
+
     await page.close();
   });
 
@@ -177,6 +183,19 @@ describe('anime page', async () => {
         .getByRole('heading', { level: 3, name: target.title, exact: true })
         .count(),
     ).toBe(1);
+
+    await page.close();
+  });
+
+  it('renders no genre badges when the anime has no genres', async () => {
+    const page = await openPage(detailPath, {
+      [detailPath]: (route) =>
+        route.fulfill({ json: { ...anime, genres: [] } }),
+    });
+
+    await page.getByTestId('anime-score').waitFor();
+
+    expect(await page.getByTestId('anime-genre').count()).toBe(0);
 
     await page.close();
   });

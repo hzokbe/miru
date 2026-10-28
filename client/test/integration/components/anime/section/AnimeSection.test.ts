@@ -128,4 +128,34 @@ describe('AnimeSection integration', () => {
 
     expect(wrapper.findComponent(AnimeSectionSkeleton).exists()).toBe(false);
   });
+
+  it('renders one badge per genre from the API data', async () => {
+    const anime = animeFixtures[0]!;
+
+    apiMock.mockResolvedValue(anime);
+
+    const wrapper = await mountSuspended(AnimeSection);
+
+    await vi.waitFor(() =>
+      expect(wrapper.findComponent(AppPageCard).exists()).toBe(true),
+    );
+
+    const genres = wrapper.findAll('[data-testid="anime-genre"]');
+
+    expect(genres.map((genre) => genre.text())).toEqual(
+      anime.genres.map((genre) => genre.name),
+    );
+  });
+
+  it('renders no genre badges when the API returns an anime without genres', async () => {
+    apiMock.mockResolvedValue({ ...animeFixtures[0]!, genres: [] });
+
+    const wrapper = await mountSuspended(AnimeSection);
+
+    await vi.waitFor(() =>
+      expect(wrapper.findComponent(AppPageCard).exists()).toBe(true),
+    );
+
+    expect(wrapper.findAll('[data-testid="anime-genre"]')).toHaveLength(0);
+  });
 });

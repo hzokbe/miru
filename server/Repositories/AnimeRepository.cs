@@ -16,6 +16,8 @@ public class AnimeRepository(AppDbContext context) : IAnimeRepository
                 .ThenBy(ac => ac.Character.Name)
             )
             .ThenInclude(ac => ac.Character)
+            .Include(a => a.AnimeGenres.OrderBy(ag => ag.Genre.Name))
+            .ThenInclude(ac => ac.Genre)
             .OrderByDescending(a => a.Score)
             .ToListAsync();
     }
@@ -29,6 +31,8 @@ public class AnimeRepository(AppDbContext context) : IAnimeRepository
                 .ThenBy(ac => ac.Character.Name)
             )
             .ThenInclude(ac => ac.Character)
+            .Include(a => a.AnimeGenres.OrderBy(ag => ag.Genre.Name))
+            .ThenInclude(ac => ac.Genre)
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 

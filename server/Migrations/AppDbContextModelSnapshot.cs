@@ -99,6 +99,23 @@ namespace Miru.Migrations
                     b.ToTable("anime_characters", (string)null);
                 });
 
+            modelBuilder.Entity("Miru.Models.AnimeGenre", b =>
+                {
+                    b.Property<Guid>("AnimeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("anime_id");
+
+                    b.Property<Guid>("GenreId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("genre_id");
+
+                    b.HasKey("AnimeId", "GenreId");
+
+                    b.HasIndex("GenreId");
+
+                    b.ToTable("anime_genres", (string)null);
+                });
+
             modelBuilder.Entity("Miru.Models.Character", b =>
                 {
                     b.Property<Guid>("Id")
@@ -155,6 +172,28 @@ namespace Miru.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("characters", (string)null);
+                });
+
+            modelBuilder.Entity("Miru.Models.Genre", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("genres", (string)null);
                 });
 
             modelBuilder.Entity("Miru.Models.Manga", b =>
@@ -251,6 +290,25 @@ namespace Miru.Migrations
                     b.Navigation("Character");
                 });
 
+            modelBuilder.Entity("Miru.Models.AnimeGenre", b =>
+                {
+                    b.HasOne("Miru.Models.Anime", "Anime")
+                        .WithMany("AnimeGenres")
+                        .HasForeignKey("AnimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Miru.Models.Genre", "Genre")
+                        .WithMany("AnimeGenres")
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Anime");
+
+                    b.Navigation("Genre");
+                });
+
             modelBuilder.Entity("Miru.Models.MangaCharacter", b =>
                 {
                     b.HasOne("Miru.Models.Character", "Character")
@@ -273,6 +331,8 @@ namespace Miru.Migrations
             modelBuilder.Entity("Miru.Models.Anime", b =>
                 {
                     b.Navigation("AnimeCharacters");
+
+                    b.Navigation("AnimeGenres");
                 });
 
             modelBuilder.Entity("Miru.Models.Character", b =>
@@ -280,6 +340,11 @@ namespace Miru.Migrations
                     b.Navigation("AnimeCharacters");
 
                     b.Navigation("MangaCharacters");
+                });
+
+            modelBuilder.Entity("Miru.Models.Genre", b =>
+                {
+                    b.Navigation("AnimeGenres");
                 });
 
             modelBuilder.Entity("Miru.Models.Manga", b =>
